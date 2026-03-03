@@ -150,14 +150,13 @@ const EventSchema = new Schema<IEvent>(
   },
 );
 
-EventSchema.pre("save", async function (next) {
+EventSchema.pre("save", async function () {
   if (this.isNew || this.isModified("title")) {
     this.slug = await generateUniqueSlug(
       this.title,
       this._id?.toString(),
     );
   }
-  next();
 });
 
 const Event = models.Event || model<IEvent>("Event", EventSchema);
