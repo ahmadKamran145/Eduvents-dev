@@ -366,7 +366,7 @@ const EventsContent = () => {
   return (
     <Layout>
       <div className="bg-gradient-hero py-12">
-        <div className="container-tight flex items-center justify-between">
+        <div className="container-tight flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-0">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-2">
               Discover Your Ideal Education Event
@@ -379,11 +379,12 @@ const EventsContent = () => {
             href="https://mailchi.mp/e537847c5924/eduvents"
             target="_blank"
             rel="noopener noreferrer"
+            className="w-auto"
           >
             <Button
               variant="outline"
               size="lg"
-              className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary px-8 hidden md:flex"
+              className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary px-8 flex"
             >
               Join our mailing list
               <ArrowRight className="ml-2 h-4 w-4" />
