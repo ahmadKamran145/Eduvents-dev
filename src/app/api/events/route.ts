@@ -13,9 +13,11 @@ import {
 } from "@/lib/email";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia" as any,
-});
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-12-18.acacia" as any,
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -151,6 +153,13 @@ export async function POST(req: NextRequest) {
       );
     } else {
       // User submission: Create Stripe session
+      if (!stripe) {
+        await Event.findByIdAndDelete(newEvent._id);
+        return NextResponse.json(
+          { success: false, message: "Stripe is not configured" },
+          { status: 500 },
+        );
+      }
       try {
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ["card"],
