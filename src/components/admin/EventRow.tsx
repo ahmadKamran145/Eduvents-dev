@@ -1,4 +1,4 @@
-import { Check, X, Clock, Star, Pencil, Trash2 } from "lucide-react";
+import { Check, X, Clock, Star, Pencil, Trash2, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Event } from "@/data/events";
@@ -62,9 +62,19 @@ const EventRow = ({
           <span>
             Submitted: {safeFormatDate(event.submissionDate, "MMM d, yyyy")}
           </span>
+          {event.endDate && (
+            <span>
+              • Event Date: {safeFormatDate(event.endDate, "MMM d, yyyy")}
+            </span>
+          )}
           {event.lastUpdated && (
             <span className="text-primary">
               • Updated: {safeFormatDate(event.lastUpdated, "MMM d, yyyy")}
+            </span>
+          )}
+          {event.expiredAt && (
+            <span className="text-amber-600">
+              • Expired: {safeFormatDate(event.expiredAt, "MMM d, yyyy")}
             </span>
           )}
         </div>
@@ -90,6 +100,12 @@ const EventRow = ({
           <span className="flex items-center px-3 py-1 text-xs font-medium bg-destructive/10 text-destructive rounded-full">
             <X className="h-3 w-3 mr-1" />
             Rejected
+          </span>
+        )}
+        {event.status === "expired" && (
+          <span className="flex items-center px-3 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
+            <Timer className="h-3 w-3 mr-1" />
+            Expired
           </span>
         )}
       </div>

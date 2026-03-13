@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, X, Clock, Plus, Star, List } from 'lucide-react';
+import { Check, X, Clock, Plus, Star, List, Timer } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,6 +60,7 @@ const AdminDashboard = () => {
     const pendingEvents = eventsList.filter(e => e.status === 'pending');
     const approvedEvents = eventsList.filter(e => e.status === 'approved');
     const rejectedEvents = eventsList.filter(e => e.status === 'rejected');
+    const expiredEvents = eventsList.filter(e => e.status === 'expired');
 
     const handleStatusChange = async (eventId: string, newStatus: 'approved' | 'rejected') => {
         try {
@@ -189,6 +190,10 @@ const AdminDashboard = () => {
                             <X className="h-4 w-4 mr-1" />
                             Rejected ({rejectedEvents.length})
                         </TabsTrigger>
+                        <TabsTrigger value="expired" className="data-[state=active]:bg-card">
+                            <Timer className="h-4 w-4 mr-1" />
+                            Expired ({expiredEvents.length})
+                        </TabsTrigger>
                         <TabsTrigger value="all" className="data-[state=active]:bg-card">
                             <List className="h-4 w-4 mr-1" />
                             All Events ({eventsList.length})
@@ -272,6 +277,28 @@ const AdminDashboard = () => {
                                     <div className="text-center py-12 bg-card rounded-lg">
                                         <X className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                                         <p className="text-muted-foreground">No rejected events</p>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* Expired Events */}
+                            <TabsContent key="expired" value="expired" className="space-y-4">
+                                {expiredEvents.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {expiredEvents.map(event => (
+                                            <EventRow
+                                                key={event.id}
+                                                event={event}
+                                                onFeaturedToggle={handleFeaturedToggle}
+                                                onDelete={handleDelete}
+                                                showActions={false}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 bg-card rounded-lg">
+                                        <Timer className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                                        <p className="text-muted-foreground">No expired events</p>
                                     </div>
                                 )}
                             </TabsContent>

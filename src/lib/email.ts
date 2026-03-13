@@ -108,6 +108,54 @@ export async function sendAdminNewEventNotification(eventData: any) {
   }
 }
 
+export async function sendEventExpiredEmail(
+  organiserEmail: string,
+  organiserName: string,
+  eventTitle: string,
+) {
+  try {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to: organiserEmail,
+      subject: `Your Event Has Expired – EDUVENTS`,
+      html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+                    <h2 style="color: #0F172A; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">Event Expired</h2>
+                    <p>Hi ${organiserName},</p>
+                    <p>Your event <strong>"${eventTitle}"</strong> has now expired as it has passed its event date. It has been removed from the EDUVENTS marketplace.</p>
+                    <p>If you would like to relist a new event, you can do so at any time by visiting your dashboard.</p>
+                    <div style="margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/list-event" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">List a New Event</a>
+                    </div>
+                    <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
+                    <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+            `,
+      text: `
+Hi ${organiserName},
+
+Your event "${eventTitle}" has now expired as it has passed its event date. It has been removed from the EDUVENTS marketplace.
+
+If you would like to relist a new event, you can do so at any time by visiting your dashboard.
+
+Best regards,
+The EDUVENTS Team
+            `,
+    };
+
+    console.log(
+      `Attempting to send event expired email to ${organiserEmail}...`,
+    );
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Event expired email sent successfully: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending event expired email:", error);
+    return false;
+  }
+}
+
 export async function sendStatusUpdateEmail(
   organiserEmail: string,
   organiserName: string,

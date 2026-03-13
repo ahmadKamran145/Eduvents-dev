@@ -65,7 +65,7 @@ export interface Event {
   image: string;
   bookingUrl: string;
   featured: boolean;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "expired";
   submissionDate: string;
   isFree: boolean;
   price?: number; // Legacy field for backward compatibility
@@ -75,6 +75,7 @@ export interface Event {
   paymentStatus?: "unpaid" | "paid";
   stripeSessionId?: string;
   lastUpdated?: string;
+  expiredAt?: string;
 }
 
 export const events: Event[] = [

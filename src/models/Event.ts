@@ -20,7 +20,7 @@ export interface IEvent {
   image: string;
   bookingUrl: string;
   featured: boolean;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "expired";
   submissionDate: string;
   isFree: boolean;
   price?: number; // Legacy field for backward compatibility
@@ -29,6 +29,7 @@ export interface IEvent {
   isAdminCreated?: boolean;
   paymentStatus?: "unpaid" | "paid";
   stripeSessionId?: string;
+  expiredAt?: string;
 }
 
 export function generateSlug(title: string): string {
@@ -108,9 +109,10 @@ const EventSchema = new Schema<IEvent>(
     featured: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "expired"],
       default: "pending",
     },
+    expiredAt: { type: String },
     submissionDate: {
       type: String,
       default: () => new Date().toISOString().split("T")[0],

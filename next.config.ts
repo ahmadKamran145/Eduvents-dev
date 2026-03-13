@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
 
     // Admin Credentials
     ADMIN_CREDENTIALS: process.env.ADMIN_CREDENTIALS,
+
+    // Cron Secret
+    CRON_SECRET: process.env.CRON_SECRET,
   },
 };
 

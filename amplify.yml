@@ -18,6 +18,7 @@ frontend:
         - echo "SMTP_FROM=$SMTP_FROM" >> .env.production
         - echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> .env.production
         - echo "ADMIN_CREDENTIALS=$ADMIN_CREDENTIALS" >> .env.production
+        - echo "CRON_SECRET=$CRON_SECRET" >> .env.production
     build:
       commands:
         - npm run build
@@ -47,3 +48,4 @@ env:
     - SMTP_FROM
     - ADMIN_EMAIL
     - ADMIN_CREDENTIALS
+    - CRON_SECRET

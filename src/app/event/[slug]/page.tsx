@@ -236,6 +236,18 @@ const EventDetail = () => {
         </button>
       </div>
 
+      {/* Expired Event Notice */}
+      {event.status === "expired" && (
+        <div className="container-tight py-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
+            <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
+            <p className="text-amber-800 font-medium">
+              This event has expired. It is no longer available for booking.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Hero Image */}
       <div className="container-tight py-4">
         <div className="relative w-full max-w-[1216px] mx-auto overflow-hidden rounded-xl">
@@ -369,6 +381,12 @@ const EventDetail = () => {
                         ✓ Approved
                       </span>
                     </div>
+                  ) : event.status === "expired" ? (
+                    <div className="w-full p-4 bg-amber-50 border-2 border-amber-300 rounded-lg flex items-center justify-center">
+                      <span className="text-amber-700 font-semibold text-lg">
+                        Expired
+                      </span>
+                    </div>
                   ) : (
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">
@@ -406,6 +424,11 @@ const EventDetail = () => {
                       />
                     </div>
                   )}
+                </div>
+              ) : event.status === "expired" ? (
+                <div className="w-full p-4 bg-amber-50 border-2 border-amber-200 rounded-lg text-center">
+                  <p className="text-amber-800 font-semibold">This event has expired</p>
+                  <p className="text-amber-600 text-sm mt-1">Booking is no longer available</p>
                 </div>
               ) : (
                 <a
