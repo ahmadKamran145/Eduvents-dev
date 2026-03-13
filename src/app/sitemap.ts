@@ -3,7 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
