@@ -308,58 +308,60 @@ const EventDetail = () => {
               )}
             </div>
 
-            <div className="bg-card rounded-lg p-6 shadow-card mb-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center text-foreground">
-                  <Calendar className="h-5 w-5 mr-3 text-primary" />
-                  <div>
-                    <p className="font-medium">{formattedDate}</p>
-                    <p className="text-sm text-muted-foreground">Date</p>
+            {event.format !== "On Demand" && (
+              <div className="bg-card rounded-lg p-6 shadow-card mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center text-foreground">
+                    <Calendar className="h-5 w-5 mr-3 text-primary" />
+                    <div>
+                      <p className="font-medium">{formattedDate}</p>
+                      <p className="text-sm text-muted-foreground">Date</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center text-foreground">
-                  <Clock className="h-5 w-5 mr-3 text-primary" />
-                  <div>
-                    <p className="font-medium">
-                      {formattedStartTime} - {formattedEndTime}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Time</p>
+                  <div className="flex items-center text-foreground">
+                    <Clock className="h-5 w-5 mr-3 text-primary" />
+                    <div>
+                      <p className="font-medium">
+                        {formattedStartTime} - {formattedEndTime}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Time</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start text-foreground">
-                  <MapPin className="h-5 w-5 mr-3 text-primary flex-shrink-0 mt-1" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium break-words">{event.location}</p>
-                    <p className="text-sm text-muted-foreground">Location</p>
+                  <div className="flex items-start text-foreground">
+                    <MapPin className="h-5 w-5 mr-3 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium break-words">{event.location}</p>
+                      <p className="text-sm text-muted-foreground">Location</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start text-foreground">
-                  <PoundSterling className="h-5 w-5 mr-3 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    {event.isFree ? (
-                      <p className="font-medium">
-                        <span className="px-3 py-1 text-sm bg-success/10 text-success rounded-full">
-                          Free
-                        </span>
-                      </p>
-                    ) : event.priceFrom != null && event.priceTo != null ? (
-                      <p className="font-medium">
-                        <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-full">
-                          £{event.priceFrom} - £{event.priceTo}
-                        </span>
-                      </p>
-                    ) : (
-                      <p className="font-medium">
-                        <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-full">
-                          £{event.price ?? event.priceFrom ?? event.priceTo}
-                        </span>
-                      </p>
-                    )}
-                    <p className="text-sm text-muted-foreground mt-1">Cost</p>
+                  <div className="flex items-start text-foreground">
+                    <PoundSterling className="h-5 w-5 mr-3 text-primary flex-shrink-0 mt-1" />
+                    <div>
+                      {event.isFree ? (
+                        <p className="font-medium">
+                          <span className="px-3 py-1 text-sm bg-success/10 text-success rounded-full">
+                            Free
+                          </span>
+                        </p>
+                      ) : event.priceFrom != null && event.priceTo != null ? (
+                        <p className="font-medium">
+                          <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-full">
+                            £{event.priceFrom} - £{event.priceTo}
+                          </span>
+                        </p>
+                      ) : (
+                        <p className="font-medium">
+                          <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-full">
+                            £{event.price ?? event.priceFrom ?? event.priceTo}
+                          </span>
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground mt-1">Cost</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="prose prose-slate max-w-none">
               <h2 className="text-xl font-semibold mb-4">About This Event</h2>
@@ -437,7 +439,7 @@ const EventDetail = () => {
                   rel="noopener noreferrer"
                 >
                   <Button size="lg" className="w-full text-lg h-14">
-                    Book Now
+                    {event.format === "On Demand" ? "Watch Now" : "Book Now"}
                   </Button>
                 </a>
               )}

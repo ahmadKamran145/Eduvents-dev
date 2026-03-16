@@ -64,29 +64,44 @@ const ListEventContent = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const isOnDemand = formData.format === "On Demand";
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Required fields
-    const requiredFields = [
+    // Required fields (always required)
+    const alwaysRequired = [
       "title",
       "description",
       "category",
       "format",
+      "organiserName",
+      "organiserEmail",
+      "bookingUrl",
+    ];
+
+    // Fields only required for non-On Demand events
+    const standardOnlyRequired = [
       "startDate",
       "endDate",
       "startTime",
       "endTime",
       "location",
-      "organiserName",
-      "organiserEmail",
-      "bookingUrl",
     ];
-    requiredFields.forEach((field) => {
+
+    alwaysRequired.forEach((field) => {
       if (!formData[field as keyof typeof formData]?.toString().trim()) {
         newErrors[field] = "Required";
       }
     });
+
+    if (!isOnDemand) {
+      standardOnlyRequired.forEach((field) => {
+        if (!formData[field as keyof typeof formData]?.toString().trim()) {
+          newErrors[field] = "Required";
+        }
+      });
+    }
 
     if (!selectedFile && !imagePreview) newErrors.image = "Required";
 
@@ -115,40 +130,42 @@ const ListEventContent = ({
       }
     }
 
-    // Past date validation
-    if (formData.startDate) {
-      const selectedDate = new Date(formData.startDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate < today) {
-        newErrors.startDate = "Date cannot be in the past";
+    if (!isOnDemand) {
+      // Past date validation
+      if (formData.startDate) {
+        const selectedDate = new Date(formData.startDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+          newErrors.startDate = "Date cannot be in the past";
+        }
       }
-    }
 
-    // End date validation
-    if (formData.endDate && formData.startDate) {
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(formData.endDate);
-      if (endDate < startDate) {
-        newErrors.endDate = "End date cannot be before start date";
+      // End date validation
+      if (formData.endDate && formData.startDate) {
+        const startDate = new Date(formData.startDate);
+        const endDate = new Date(formData.endDate);
+        if (endDate < startDate) {
+          newErrors.endDate = "End date cannot be before start date";
+        }
       }
-    }
 
-    if (formData.isFree === "paid") {
-      if (formData.priceFrom.trim() === "") {
-        newErrors.priceFrom = "Required";
-      }
-      if (formData.priceTo.trim() !== "" && parseFloat(formData.priceTo) <= 0) {
-        newErrors.priceTo = "Price To must be greater than 0";
-      } else if (
-        formData.priceFrom.trim() !== "" &&
-        formData.priceTo.trim() !== ""
-      ) {
-        const from = parseFloat(formData.priceFrom);
-        const to = parseFloat(formData.priceTo);
-        if (to < from) {
-          newErrors.priceTo =
-            "Maximum price must be greater than or equal to minimum price";
+      if (formData.isFree === "paid") {
+        if (formData.priceFrom.trim() === "") {
+          newErrors.priceFrom = "Required";
+        }
+        if (formData.priceTo.trim() !== "" && parseFloat(formData.priceTo) <= 0) {
+          newErrors.priceTo = "Price To must be greater than 0";
+        } else if (
+          formData.priceFrom.trim() !== "" &&
+          formData.priceTo.trim() !== ""
+        ) {
+          const from = parseFloat(formData.priceFrom);
+          const to = parseFloat(formData.priceTo);
+          if (to < from) {
+            newErrors.priceTo =
+              "Maximum price must be greater than or equal to minimum price";
+          }
         }
       }
     }
@@ -194,8 +211,35 @@ const ListEventContent = ({
       if (field === "startDate") {
         newData.endDate = value;
       }
+      // When switching to On Demand, clear date/time/location/cost fields
+      if (field === "format" && value === "On Demand") {
+        newData.startDate = "";
+        newData.endDate = "";
+        newData.startTime = "";
+        newData.endTime = "";
+        newData.location = "";
+        newData.isFree = "free";
+        newData.priceFrom = "";
+        newData.priceTo = "";
+      }
       return newData;
     });
+
+    // When switching to On Demand, clear related errors
+    if (field === "format" && value === "On Demand") {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.startDate;
+        delete newErrors.endDate;
+        delete newErrors.startTime;
+        delete newErrors.endTime;
+        delete newErrors.location;
+        delete newErrors.priceFrom;
+        delete newErrors.priceTo;
+        return newErrors;
+      });
+      return;
+    }
 
     // Clear endDate error when auto-filling from startDate
     if (field === "startDate" && value) {
@@ -677,197 +721,203 @@ const ListEventContent = ({
         </div>
       </div>
 
-      {/* Date & Time */}
-      <div className="bg-card rounded-lg p-3 shadow-card">
-        <h2 className="text-xl font-semibold mb-6">Date & Time</h2>
+      {/* Date & Time — hidden for On Demand */}
+      {!isOnDemand && (
+        <div className="bg-card rounded-lg p-3 shadow-card">
+          <h2 className="text-xl font-semibold mb-6">Date & Time</h2>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startDate">Start Date *</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) => handleChange("startDate", e.target.value)}
-                onKeyDown={(e) => e.preventDefault()}
-                className={errors.startDate ? "border-destructive" : ""}
-              />
-              {errors.startDate && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.startDate}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="endDate">End Date *</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                min={
-                  formData.startDate || new Date().toISOString().split("T")[0]
-                }
-                onChange={(e) => handleChange("endDate", e.target.value)}
-                onKeyDown={(e) => e.preventDefault()}
-                className={errors.endDate ? "border-destructive" : ""}
-              />
-              {errors.endDate && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.endDate}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startTime">Start Time *</Label>
-              <TimeInput
-                value={formData.startTime}
-                onChange={(value) => handleChange("startTime", value)}
-                className={errors.startTime ? "border-destructive" : ""}
-              />
-              {errors.startTime && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.startTime}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="endTime">End Time *</Label>
-              <TimeInput
-                value={formData.endTime}
-                onChange={(value) => handleChange("endTime", value)}
-                className={errors.endTime ? "border-destructive" : ""}
-              />
-              {errors.endTime && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.endTime}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Location */}
-      <div className="bg-card rounded-lg p-3 shadow-card">
-        <h2 className="text-xl font-semibold mb-6">Location</h2>
-
-        <div>
-          <Label htmlFor="location">Venue or Platform *</Label>
-          <Input
-            id="location"
-            value={formData.location}
-            onChange={(e) => handleChange("location", e.target.value)}
-            placeholder="Enter venue address or online platform"
-            className={errors.location ? "border-destructive" : ""}
-          />
-          {errors.location && (
-            <p className="text-sm text-destructive mt-1">{errors.location}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Cost to Attend */}
-      <div className="bg-card rounded-lg p-3 shadow-card">
-        <h2 className="text-xl font-semibold mb-6">Cost to Attend</h2>
-
-        <div className="space-y-4">
-          <RadioGroup
-            value={formData.isFree}
-            onValueChange={(v) => handleChange("isFree", v)}
-            className="flex gap-6"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="free" id="free" />
-              <Label htmlFor="free" className="cursor-pointer">
-                Free
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="paid" id="paid" />
-              <Label htmlFor="paid" className="cursor-pointer">
-                Paid
-              </Label>
-            </div>
-          </RadioGroup>
-
-          {formData.isFree === "paid" && (
-            <div className="animate-fade-in">
-              <Label>Ticket Price Range</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label
-                    htmlFor="priceFrom"
-                    className="text-sm text-muted-foreground"
-                  >
-                    From *
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      £
-                    </span>
-                    <Input
-                      id="priceFrom"
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={formData.priceFrom}
-                      onChange={(e) =>
-                        handleChange("priceFrom", e.target.value)
-                      }
-                      placeholder="50"
-                      className={`pl-7 ${errors.priceFrom ? "border-destructive" : ""}`}
-                    />
-                  </div>
-                  {errors.priceFrom && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.priceFrom}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label
-                    htmlFor="priceTo"
-                    className="text-sm text-muted-foreground"
-                  >
-                    To (Optional)
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      £
-                    </span>
-                    <Input
-                      id="priceTo"
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={formData.priceTo}
-                      onChange={(e) => handleChange("priceTo", e.target.value)}
-                      placeholder="150"
-                      className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`}
-                    />
-                  </div>
-                  {errors.priceTo && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.priceTo}
-                    </p>
-                  )}
-                </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startDate">Start Date *</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => handleChange("startDate", e.target.value)}
+                  onKeyDown={(e) => e.preventDefault()}
+                  className={errors.startDate ? "border-destructive" : ""}
+                />
+                {errors.startDate && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.startDate}
+                  </p>
+                )}
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Enter the price range for tickets (e.g., £50 - £150)
-              </p>
+
+              <div>
+                <Label htmlFor="endDate">End Date *</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={formData.endDate}
+                  min={
+                    formData.startDate || new Date().toISOString().split("T")[0]
+                  }
+                  onChange={(e) => handleChange("endDate", e.target.value)}
+                  onKeyDown={(e) => e.preventDefault()}
+                  className={errors.endDate ? "border-destructive" : ""}
+                />
+                {errors.endDate && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.endDate}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startTime">Start Time *</Label>
+                <TimeInput
+                  value={formData.startTime}
+                  onChange={(value) => handleChange("startTime", value)}
+                  className={errors.startTime ? "border-destructive" : ""}
+                />
+                {errors.startTime && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.startTime}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="endTime">End Time *</Label>
+                <TimeInput
+                  value={formData.endTime}
+                  onChange={(value) => handleChange("endTime", value)}
+                  className={errors.endTime ? "border-destructive" : ""}
+                />
+                {errors.endTime && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.endTime}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Location — hidden for On Demand */}
+      {!isOnDemand && (
+        <div className="bg-card rounded-lg p-3 shadow-card">
+          <h2 className="text-xl font-semibold mb-6">Location</h2>
+
+          <div>
+            <Label htmlFor="location">Venue or Platform *</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => handleChange("location", e.target.value)}
+              placeholder="Enter venue address or online platform"
+              className={errors.location ? "border-destructive" : ""}
+            />
+            {errors.location && (
+              <p className="text-sm text-destructive mt-1">{errors.location}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Cost to Attend — hidden for On Demand */}
+      {!isOnDemand && (
+        <div className="bg-card rounded-lg p-3 shadow-card">
+          <h2 className="text-xl font-semibold mb-6">Cost to Attend</h2>
+
+          <div className="space-y-4">
+            <RadioGroup
+              value={formData.isFree}
+              onValueChange={(v) => handleChange("isFree", v)}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="free" id="free" />
+                <Label htmlFor="free" className="cursor-pointer">
+                  Free
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="paid" id="paid" />
+                <Label htmlFor="paid" className="cursor-pointer">
+                  Paid
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {formData.isFree === "paid" && (
+              <div className="animate-fade-in">
+                <Label>Ticket Price Range</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label
+                      htmlFor="priceFrom"
+                      className="text-sm text-muted-foreground"
+                    >
+                      From *
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        £
+                      </span>
+                      <Input
+                        id="priceFrom"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={formData.priceFrom}
+                        onChange={(e) =>
+                          handleChange("priceFrom", e.target.value)
+                        }
+                        placeholder="50"
+                        className={`pl-7 ${errors.priceFrom ? "border-destructive" : ""}`}
+                      />
+                    </div>
+                    {errors.priceFrom && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.priceFrom}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor="priceTo"
+                      className="text-sm text-muted-foreground"
+                    >
+                      To (Optional)
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        £
+                      </span>
+                      <Input
+                        id="priceTo"
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={formData.priceTo}
+                        onChange={(e) => handleChange("priceTo", e.target.value)}
+                        placeholder="150"
+                        className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`}
+                      />
+                    </div>
+                    {errors.priceTo && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.priceTo}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Enter the price range for tickets (e.g., £50 - £150)
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Organiser Information */}
       <div className="bg-card rounded-lg p-3 shadow-card">
@@ -968,12 +1018,16 @@ const ListEventContent = ({
         )}
       </div>
 
-      {/* Booking Link */}
+      {/* Booking / Watch Link */}
       <div className="bg-card rounded-lg p-3 shadow-card">
-        <h2 className="text-xl font-semibold mb-6">Booking</h2>
+        <h2 className="text-xl font-semibold mb-6">
+          {isOnDemand ? "Watch Link" : "Booking"}
+        </h2>
 
         <div>
-          <Label htmlFor="bookingUrl">External Booking Link *</Label>
+          <Label htmlFor="bookingUrl">
+            {isOnDemand ? "Watch Link *" : "External Booking Link *"}
+          </Label>
           <Input
             id="bookingUrl"
             type="url"
@@ -983,7 +1037,9 @@ const ListEventContent = ({
             className={errors.bookingUrl ? "border-destructive" : ""}
           />
           <p className="text-sm text-muted-foreground mt-1">
-            Link where attendees can register
+            {isOnDemand
+              ? "URL where attendees can watch the recording"
+              : "Link where attendees can register"}
           </p>
           {errors.bookingUrl && (
             <p className="text-sm text-destructive mt-1">{errors.bookingUrl}</p>

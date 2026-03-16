@@ -72,6 +72,8 @@ const EventEditDialog = ({
 
   const getCharCount = (text: string) => text.replace(/\s+/g, "").length;
 
+  const isOnDemand = formData.format === "On Demand";
+
   const handleChange = (field: string, value: string | boolean | number) => {
     // Block description input if character count (excluding spaces/newlines) reaches 2000
     if (field === "description" && typeof value === "string") {
@@ -87,8 +89,35 @@ const EventEditDialog = ({
       if (field === "startDate" && typeof value === "string") {
         newData.endDate = value;
       }
+      // When switching to On Demand, clear date/time/location/cost fields
+      if (field === "format" && value === "On Demand") {
+        newData.startDate = "";
+        newData.endDate = "";
+        newData.startTime = "";
+        newData.endTime = "";
+        newData.location = "";
+        newData.isFree = true;
+        newData.priceFrom = undefined;
+        newData.priceTo = undefined;
+      }
       return newData;
     });
+
+    // When switching to On Demand, clear related errors
+    if (field === "format" && value === "On Demand") {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.startDate;
+        delete newErrors.endDate;
+        delete newErrors.startTime;
+        delete newErrors.endTime;
+        delete newErrors.location;
+        delete newErrors.priceFrom;
+        delete newErrors.priceTo;
+        return newErrors;
+      });
+      return;
+    }
 
     // Live validation for character limits
     if (field === "title" && typeof value === "string" && value.length > 100) {
@@ -293,7 +322,7 @@ const EventEditDialog = ({
       }
     }
 
-    if (!formData.isFree) {
+    if (!isOnDemand && !formData.isFree) {
       const pFrom = formData.priceFrom as any;
       const pTo = formData.priceTo as any;
 
@@ -536,206 +565,212 @@ const EventEditDialog = ({
             </div>
           </div>
 
-          {/* Date & Time */}
-          <div className="bg-card rounded-lg p-3 shadow-card">
-            <h2 className="text-xl font-semibold mb-6">Date & Time</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="startDate">Start Date *</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate || ""}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => handleChange("startDate", e.target.value)}
-                    onKeyDown={(e) => e.preventDefault()}
-                    className={errors.startDate ? "border-destructive" : ""}
-                  />
-                  {errors.startDate && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.startDate}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="endDate">End Date *</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={formData.endDate || ""}
-                    min={
-                      formData.startDate ||
-                      new Date().toISOString().split("T")[0]
-                    }
-                    onChange={(e) => handleChange("endDate", e.target.value)}
-                    onKeyDown={(e) => e.preventDefault()}
-                    className={errors.endDate ? "border-destructive" : ""}
-                  />
-                  {errors.endDate && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.endDate}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="startTime">Start Time *</Label>
-                  <TimeInput
-                    value={formData.startTime || ""}
-                    onChange={(value) => handleChange("startTime", value)}
-                    className={errors.startTime ? "border-destructive" : ""}
-                  />
-                  {errors.startTime && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.startTime}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="endTime">End Time *</Label>
-                  <TimeInput
-                    value={formData.endTime || ""}
-                    onChange={(value) => handleChange("endTime", value)}
-                    className={errors.endTime ? "border-destructive" : ""}
-                  />
-                  {errors.endTime && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.endTime}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="bg-card rounded-lg p-3 shadow-card">
-            <h2 className="text-xl font-semibold mb-6">Location</h2>
-            <div>
-              <Label htmlFor="location">Venue or Platform *</Label>
-              <Input
-                id="location"
-                value={formData.location || ""}
-                onChange={(e) => handleChange("location", e.target.value)}
-                placeholder="Enter venue address or online platform"
-                className={errors.location ? "border-destructive" : ""}
-              />
-              {errors.location && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.location}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Cost to Attend */}
-          <div className="bg-card rounded-lg p-3 shadow-card">
-            <h2 className="text-xl font-semibold mb-6">Cost to Attend</h2>
-            <div className="space-y-4">
-              <RadioGroup
-                value={formData.isFree ? "free" : "paid"}
-                onValueChange={(v) => handleChange("isFree", v === "free")}
-                className="flex gap-6"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="free" id="edit-free" />
-                  <Label htmlFor="edit-free" className="cursor-pointer">
-                    Free
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="paid" id="edit-paid" />
-                  <Label htmlFor="edit-paid" className="cursor-pointer">
-                    Paid
-                  </Label>
-                </div>
-              </RadioGroup>
-
-              {!formData.isFree && (
-                <div className="animate-fade-in">
-                  <Label>Ticket Price Range</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label
-                        htmlFor="priceFrom"
-                        className="text-sm text-muted-foreground"
-                      >
-                        From *
-                      </Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          £
-                        </span>
-                        <Input
-                          id="priceFrom"
-                          type="number"
-                          min="0"
-                          step="1"
-                          value={formData.priceFrom ?? ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            handleChange(
-                              "priceFrom",
-                              val === "" ? "" : parseFloat(val),
-                            );
-                          }}
-                          placeholder="50"
-                          className={`pl-7 ${errors.priceFrom ? "border-destructive" : ""}`}
-                        />
-                      </div>
-                      {errors.priceFrom && (
-                        <p className="text-sm text-destructive mt-1">
-                          {errors.priceFrom}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="priceTo"
-                        className="text-sm text-muted-foreground"
-                      >
-                        To (Optional)
-                      </Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          £
-                        </span>
-                        <Input
-                          id="priceTo"
-                          type="number"
-                          min="1"
-                          step="1"
-                          value={formData.priceTo ?? ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            handleChange(
-                              "priceTo",
-                              val === "" ? "" : parseFloat(val),
-                            );
-                          }}
-                          placeholder="150"
-                          className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`}
-                        />
-                      </div>
-                      {errors.priceTo && (
-                        <p className="text-sm text-destructive mt-1">
-                          {errors.priceTo}
-                        </p>
-                      )}
-                    </div>
+          {/* Date & Time — hidden for On Demand */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Date & Time</h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate">Start Date *</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate || ""}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => handleChange("startDate", e.target.value)}
+                      onKeyDown={(e) => e.preventDefault()}
+                      className={errors.startDate ? "border-destructive" : ""}
+                    />
+                    {errors.startDate && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.startDate}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Enter the price range for tickets (e.g., £50 - £150)
-                  </p>
+
+                  <div>
+                    <Label htmlFor="endDate">End Date *</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={formData.endDate || ""}
+                      min={
+                        formData.startDate ||
+                        new Date().toISOString().split("T")[0]
+                      }
+                      onChange={(e) => handleChange("endDate", e.target.value)}
+                      onKeyDown={(e) => e.preventDefault()}
+                      className={errors.endDate ? "border-destructive" : ""}
+                    />
+                    {errors.endDate && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.endDate}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startTime">Start Time *</Label>
+                    <TimeInput
+                      value={formData.startTime || ""}
+                      onChange={(value) => handleChange("startTime", value)}
+                      className={errors.startTime ? "border-destructive" : ""}
+                    />
+                    {errors.startTime && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.startTime}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="endTime">End Time *</Label>
+                    <TimeInput
+                      value={formData.endTime || ""}
+                      onChange={(value) => handleChange("endTime", value)}
+                      className={errors.endTime ? "border-destructive" : ""}
+                    />
+                    {errors.endTime && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.endTime}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Location — hidden for On Demand */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Location</h2>
+              <div>
+                <Label htmlFor="location">Venue or Platform *</Label>
+                <Input
+                  id="location"
+                  value={formData.location || ""}
+                  onChange={(e) => handleChange("location", e.target.value)}
+                  placeholder="Enter venue address or online platform"
+                  className={errors.location ? "border-destructive" : ""}
+                />
+                {errors.location && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.location}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Cost to Attend — hidden for On Demand */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Cost to Attend</h2>
+              <div className="space-y-4">
+                <RadioGroup
+                  value={formData.isFree ? "free" : "paid"}
+                  onValueChange={(v) => handleChange("isFree", v === "free")}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="free" id="edit-free" />
+                    <Label htmlFor="edit-free" className="cursor-pointer">
+                      Free
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="paid" id="edit-paid" />
+                    <Label htmlFor="edit-paid" className="cursor-pointer">
+                      Paid
+                    </Label>
+                  </div>
+                </RadioGroup>
+
+                {!formData.isFree && (
+                  <div className="animate-fade-in">
+                    <Label>Ticket Price Range</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label
+                          htmlFor="priceFrom"
+                          className="text-sm text-muted-foreground"
+                        >
+                          From *
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            £
+                          </span>
+                          <Input
+                            id="priceFrom"
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={formData.priceFrom ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              handleChange(
+                                "priceFrom",
+                                val === "" ? "" : parseFloat(val),
+                              );
+                            }}
+                            placeholder="50"
+                            className={`pl-7 ${errors.priceFrom ? "border-destructive" : ""}`}
+                          />
+                        </div>
+                        {errors.priceFrom && (
+                          <p className="text-sm text-destructive mt-1">
+                            {errors.priceFrom}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label
+                          htmlFor="priceTo"
+                          className="text-sm text-muted-foreground"
+                        >
+                          To (Optional)
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            £
+                          </span>
+                          <Input
+                            id="priceTo"
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={formData.priceTo ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              handleChange(
+                                "priceTo",
+                                val === "" ? "" : parseFloat(val),
+                              );
+                            }}
+                            placeholder="150"
+                            className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`}
+                          />
+                        </div>
+                        {errors.priceTo && (
+                          <p className="text-sm text-destructive mt-1">
+                            {errors.priceTo}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Enter the price range for tickets (e.g., £50 - £150)
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Organiser Information */}
           <div className="bg-card rounded-lg p-3 shadow-card">
@@ -873,11 +908,15 @@ const EventEditDialog = ({
             )}
           </div>
 
-          {/* Booking Link */}
+          {/* Booking / Watch Link */}
           <div className="bg-card rounded-lg p-3 shadow-card">
-            <h2 className="text-xl font-semibold mb-6">Booking</h2>
+            <h2 className="text-xl font-semibold mb-6">
+              {isOnDemand ? "Watch Link" : "Booking"}
+            </h2>
             <div>
-              <Label htmlFor="bookingUrl">External Booking Link *</Label>
+              <Label htmlFor="bookingUrl">
+                {isOnDemand ? "Watch Link *" : "External Booking Link *"}
+              </Label>
               <Input
                 id="bookingUrl"
                 type="url"
@@ -887,7 +926,9 @@ const EventEditDialog = ({
                 className={errors.bookingUrl ? "border-destructive" : ""}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                Link where attendees can register
+                {isOnDemand
+                  ? "URL where attendees can watch the recording"
+                  : "Link where attendees can register"}
               </p>
               {errors.bookingUrl && (
                 <p className="text-sm text-destructive mt-1">
