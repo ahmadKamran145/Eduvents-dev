@@ -86,11 +86,11 @@ const EventSchema = new Schema<IEvent>(
     subjectAreas: [{ type: String }],
     phases: [{ type: String }],
     date: { type: String, required: false }, // Legacy field for backward compatibility
-    startDate: { type: String, required: [true, "Required"] },
-    endDate: { type: String, required: [true, "Required"] },
-    startTime: { type: String, required: [true, "Required"] },
-    endTime: { type: String, required: [true, "Required"] },
-    location: { type: String, required: [true, "Required"] },
+    startDate: { type: String, required: false },
+    endDate: { type: String, required: false },
+    startTime: { type: String, required: false },
+    endTime: { type: String, required: false },
+    location: { type: String, required: false },
     organiser: {
       type: String,
       required: [true, "Required"],
@@ -104,7 +104,7 @@ const EventSchema = new Schema<IEvent>(
     image: { type: String, required: [true, "Required"] },
     bookingUrl: {
       type: String,
-      required: [true, "Required"],
+      required: false,
     },
     featured: { type: Boolean, default: false },
     status: {

@@ -100,7 +100,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             updateData.slug = await generateUniqueSlug(updateData.title, eventId);
         }
 
-        const updatedEvent = await Event.findByIdAndUpdate(eventId, updateData, { new: true });
+        // When switching to On Demand, $unset date/time/location/price fields so they're
+        // actually removed from the document (setting to undefined is ignored by Mongoose $set)
+        let unsetFields: any = {};
+        if (updateData.format === 'On Demand') {
+            unsetFields = { startDate: 1, endDate: 1, startTime: 1, endTime: 1, location: 1, priceFrom: 1, priceTo: 1 };
+            updateData.isFree = true;
+        }
+
+        const mongoUpdate: any = { $set: updateData };
+        if (Object.keys(unsetFields).length > 0) mongoUpdate.$unset = unsetFields;
+
+        const updatedEvent = await Event.findByIdAndUpdate(eventId, mongoUpdate, { new: true });
 
         return NextResponse.json({
             success: true,

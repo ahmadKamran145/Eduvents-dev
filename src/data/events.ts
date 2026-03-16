@@ -7,7 +7,7 @@ export type EventCategory =
   | "Festival"
   | "Exhibition";
 
-export type EventFormat = "In-Person" | "Virtual" | "Hybrid";
+export type EventFormat = "In-Person" | "Virtual" | "Hybrid" | "On Demand";
 
 export type SubjectArea =
   | "English"
@@ -741,7 +741,7 @@ export const subjectAreas: SubjectArea[] = [
   "Safeguarding",
 ];
 
-export const formats: EventFormat[] = ["In-Person", "Virtual", "Hybrid"];
+export const formats: EventFormat[] = ["In-Person", "Virtual", "Hybrid", "On Demand"];
 
 export const eventPhases: EventPhase[] = [
   "Primary",

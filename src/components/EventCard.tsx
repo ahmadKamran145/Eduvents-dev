@@ -10,6 +10,7 @@ interface EventCardProps {
 
 
 const EventCard = ({ event }: EventCardProps) => {
+  const isOnDemand = event.format === 'On Demand';
   const formattedDate = event.startDate && event.endDate
     ? event.startDate === event.endDate
       ? safeFormatDate(event.startDate, 'EEEE, MMMM d, yyyy')
@@ -31,6 +32,11 @@ const EventCard = ({ event }: EventCardProps) => {
         <span className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-primary-foreground rounded-full ${getCategoryColor(event.category)}`}>
           {event.category}
         </span>
+        {isOnDemand && (
+          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full">
+            On Demand
+          </span>
+        )}
       </div>
 
       <div className="p-5">
@@ -46,34 +52,38 @@ const EventCard = ({ event }: EventCardProps) => {
         </p>
 
         <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 mr-2 text-primary" />
-            <span>{formattedDate}</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 mr-2 text-primary" />
-            <span>{formattedStartTime} - {formattedEndTime}</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 mr-2 text-primary flex-shrink-0" />
-            <span className="line-clamp-1 break-all min-w-0">{event.location}</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <PoundSterling className="h-4 w-4 mr-2 text-primary" />
-            {event.isFree ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-success/10 text-success rounded-full">
-                Free
-              </span>
-            ) : event.priceFrom != null && event.priceTo != null ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                £{event.priceFrom} - £{event.priceTo}
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                £{event.price ?? event.priceFrom ?? event.priceTo}
-              </span>
-            )}
-          </div>
+          {!isOnDemand && (
+            <>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4 mr-2 text-primary" />
+                <span>{formattedDate}</span>
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 mr-2 text-primary" />
+                <span>{formattedStartTime} - {formattedEndTime}</span>
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mr-2 text-primary flex-shrink-0" />
+                <span className="line-clamp-1 break-all min-w-0">{event.location}</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <PoundSterling className="h-4 w-4 mr-2 text-primary" />
+                {event.isFree ? (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-success/10 text-success rounded-full">
+                    Free
+                  </span>
+                ) : event.priceFrom != null && event.priceTo != null ? (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                    £{event.priceFrom} - £{event.priceTo}
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                    £{event.price ?? event.priceFrom ?? event.priceTo}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Phase Tags */}

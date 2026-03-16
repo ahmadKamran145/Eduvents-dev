@@ -49,6 +49,11 @@ const EventRow = ({
           <h3 className="font-medium text-foreground break-all">
             {event.title}
           </h3>
+          {event.format === "On Demand" && (
+            <span className="px-2 py-0.5 text-xs bg-secondary text-secondary-foreground rounded-full whitespace-nowrap">
+              On Demand
+            </span>
+          )}
           {event.isAdminCreated && (
             <span className="px-2 py-0.5 text-xs bg-accent text-accent-foreground rounded-full whitespace-nowrap">
               Admin upload - Free Listing

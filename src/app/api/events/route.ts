@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
     const isAdmin = formData.get("isAdmin") === "true";
     const file = formData.get("image") as File;
 
+    const isOnDemand = format === "On Demand";
+
     // Validation
     const errors: any = {};
     if (!title) errors.title = "Required";
@@ -74,6 +76,15 @@ export async function POST(req: NextRequest) {
       } catch {
         errors.bookingUrl = "Incorrect URL. Please enter a valid URL.";
       }
+    }
+
+    // Date/time/location only required for non-On Demand events
+    if (!isOnDemand) {
+      if (!startDate) errors.startDate = "Required";
+      if (!endDate) errors.endDate = "Required";
+      if (!startTime) errors.startTime = "Required";
+      if (!endTime) errors.endTime = "Required";
+      if (!location) errors.location = "Required";
     }
 
     if (!file) errors.image = "Required";
@@ -114,18 +125,12 @@ export async function POST(req: NextRequest) {
       format,
       subjectAreas,
       phases,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
-      location,
+      ...(isOnDemand ? {} : { startDate, endDate, startTime, endTime, location, isFree, priceFrom, priceTo }),
       organiser,
       organiserEmail,
       image: imageUrl,
       bookingUrl,
-      isFree,
-      priceFrom,
-      priceTo,
+      ...(isOnDemand ? { isFree: true } : {}),
       status: isAdmin ? "approved" : "pending",
       featured: false,
       isAdminCreated: isAdmin,

@@ -104,24 +104,28 @@ const PendingEventCard = ({
           </p>
 
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-1 text-primary" />
-              {formattedDate}
-            </div>
-            <div className="flex items-center min-w-0">
-              <MapPin className="h-4 w-4 mr-1 text-primary flex-shrink-0" />
-              <span className="truncate">{event.location}</span>
-            </div>
-            <div className="flex items-center">
-              <PoundSterling className="h-4 w-4 mr-1 text-primary" />
-              {event.isFree ? (
-                <span className="text-success font-medium">Free</span>
-              ) : event.priceFrom != null && event.priceTo != null ? (
-                <span>£{event.priceFrom} - £{event.priceTo}</span>
-              ) : (
-                <span>£{event.price ?? event.priceFrom ?? event.priceTo ?? 'Paid'}</span>
-              )}
-            </div>
+            {event.format !== "On Demand" && (
+              <>
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1 text-primary" />
+                  {formattedDate}
+                </div>
+                <div className="flex items-center min-w-0">
+                  <MapPin className="h-4 w-4 mr-1 text-primary flex-shrink-0" />
+                  <span className="truncate">{event.location}</span>
+                </div>
+                <div className="flex items-center">
+                  <PoundSterling className="h-4 w-4 mr-1 text-primary" />
+                  {event.isFree ? (
+                    <span className="text-success font-medium">Free</span>
+                  ) : event.priceFrom != null && event.priceTo != null ? (
+                    <span>£{event.priceFrom} - £{event.priceTo}</span>
+                  ) : (
+                    <span>£{event.price ?? event.priceFrom ?? event.priceTo ?? 'Paid'}</span>
+                  )}
+                </div>
+              </>
+            )}
             <div className="text-muted-foreground/70">
               Submitted: {submittedDate}
             </div>
