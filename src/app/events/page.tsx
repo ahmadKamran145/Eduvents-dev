@@ -9,9 +9,12 @@ import {
   Calendar as CalendarIcon,
   Search,
   Loader2,
+  LayoutList,
+  Map,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import EventCard from "@/components/EventCard";
+import MapView from "@/components/MapView";
 import SearchBar from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,6 +80,7 @@ const EventsContent = () => {
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   // Debounce search
   useEffect(() => {
@@ -418,6 +422,32 @@ const EventsContent = () => {
               />
 
               <div className="flex gap-4">
+                {/* List / Map toggle */}
+                <div className="flex rounded-md border border-input overflow-hidden h-12">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors ${
+                      viewMode === "list"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <LayoutList className="h-4 w-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("map")}
+                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors border-l border-input ${
+                      viewMode === "map"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Map className="h-4 w-4" />
+                    <span className="hidden sm:inline">Map</span>
+                  </button>
+                </div>
+
                 <Button
                   variant="outline"
                   className="lg:hidden w-[160px] h-12"
@@ -467,6 +497,8 @@ const EventsContent = () => {
                   Finding the best educational opportunities for you...
                 </p>
               </div>
+            ) : viewMode === "map" ? (
+              <MapView events={allEvents} />
             ) : paginatedEvents.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
