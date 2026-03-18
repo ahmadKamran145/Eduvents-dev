@@ -83,6 +83,31 @@ export default function Home() {
               </Button>
             </form>
 
+            {/* Phase Filter Buttons */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {[
+                { label: "Primary", value: "Primary" },
+                { label: "Secondary", value: "Secondary" },
+                { label: "Further Ed", value: "Further Education" },
+                { label: "Higher Ed", value: "Higher Education" },
+                { label: "Special Ed", value: "Special Schools" },
+                { label: "Early Years", value: "Early Years" },
+              ].map(({ label, value }) => (
+                <Link
+                  key={value}
+                  href={`/events?phase=${encodeURIComponent(value)}`}
+                >
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4"
+                  >
+                    {label}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+
             <Link href="/list-event">
               <Button
                 variant="outline"

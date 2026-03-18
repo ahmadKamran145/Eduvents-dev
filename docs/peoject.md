@@ -29,35 +29,35 @@ EDUVENTS is a platform where educators can **discover** and **list** educational
 
 ### Core Features
 
-| Feature | Description |
-|---|---|
-| **Event Discovery** | Browse, search, and filter approved events by category, format, subject area, educational phase, and date range |
-| **Event Listing** | Organisers submit events via a multi-step form with image upload and Stripe payment (£99 listing fee) |
-| **Admin Dashboard** | Review pending events, approve/reject submissions, edit event details, toggle featured status |
-| **Featured Events** | Admin-curated carousel on the homepage showcasing highlighted events |
-| **Email Notifications** | Automated emails for payment confirmation, admin alerts, and approval/rejection updates |
-| **SEO** | Dynamic sitemap, robots.txt, and semantic HTML |
+| Feature                 | Description                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Event Discovery**     | Browse, search, and filter approved events by category, format, subject area, educational phase, and date range |
+| **Event Listing**       | Organisers submit events via a multi-step form with image upload and Stripe payment (£99 listing fee)           |
+| **Admin Dashboard**     | Review pending events, approve/reject submissions, edit event details, toggle featured status                   |
+| **Featured Events**     | Admin-curated carousel on the homepage showcasing highlighted events                                            |
+| **Email Notifications** | Automated emails for payment confirmation, admin alerts, and approval/rejection updates                         |
+| **SEO**                 | Dynamic sitemap, robots.txt, and semantic HTML                                                                  |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Framework** | Next.js 16 (App Router, Turbopack, React Compiler) |
-| **Runtime** | React 19 |
-| **Language** | TypeScript 5 |
-| **Database** | MongoDB via Mongoose 9 |
-| **Payments** | Stripe Checkout (GBP) |
-| **File Storage** | AWS S3 |
-| **Email** | Nodemailer (SMTP / Gmail) |
-| **UI Components** | Radix UI primitives + shadcn/ui pattern |
-| **Styling** | Tailwind CSS 4 + tailwindcss-animate |
-| **Forms** | React Hook Form + Zod validation |
-| **Date Handling** | date-fns 4, react-date-range |
-| **Charts** | Recharts 3 |
-| **Toast Notifications** | Sonner |
-| **Deployment** | AWS Amplify |
+| Layer                   | Technology                                         |
+| ----------------------- | -------------------------------------------------- |
+| **Framework**           | Next.js 16 (App Router, Turbopack, React Compiler) |
+| **Runtime**             | React 19                                           |
+| **Language**            | TypeScript 5                                       |
+| **Database**            | MongoDB via Mongoose 9                             |
+| **Payments**            | Stripe Checkout (GBP)                              |
+| **File Storage**        | AWS S3                                             |
+| **Email**               | Nodemailer (SMTP / Gmail)                          |
+| **UI Components**       | Radix UI primitives + shadcn/ui pattern            |
+| **Styling**             | Tailwind CSS 4 + tailwindcss-animate               |
+| **Forms**               | React Hook Form + Zod validation                   |
+| **Date Handling**       | date-fns 4, react-date-range                       |
+| **Charts**              | Recharts 3                                         |
+| **Toast Notifications** | Sonner                                             |
+| **Deployment**          | AWS Amplify                                        |
 
 ---
 
@@ -143,33 +143,33 @@ edivents-next/
 
 ### Event Schema (`src/models/Event.ts`)
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `title` | String | ✅ | Event name (max 100 chars) |
-| `description` | String | ✅ | Short description (max 2000 chars) |
-| `fullDescription` | String | — | Extended description (legacy) |
-| `category` | String | ✅ | One of: Webinar, Podcast, Conference, CPD Training, Awards Show, Festival, Exhibition |
-| `format` | String | ✅ | In-Person, Virtual, or Hybrid |
-| `subjectAreas` | [String] | — | e.g. English, Maths, Science, STEM, Leadership, Technology, Inclusion, Assessment, Wellbeing, Humanities, Geography, SEND, Governance |
-| `phases` | [String] | — | e.g. Primary, Secondary, Further Education, Higher Education, Special Schools, Nursery, Independent |
-| `startDate` | String | ✅ | Format: `YYYY-MM-DD` |
-| `endDate` | String | ✅ | Format: `YYYY-MM-DD` |
-| `startTime` | String | ✅ | Format: `HH:MM` (24hr) |
-| `endTime` | String | ✅ | Format: `HH:MM` (24hr) |
-| `location` | String | ✅ | Venue or "Online via …" |
-| `organiser` | String | ✅ | Organisation name (max 50 chars) |
-| `organiserEmail` | String | ✅ | Contact email (validated) |
-| `image` | String | ✅ | S3 URL of event image |
-| `bookingUrl` | String | ✅ | External booking/registration link |
-| `featured` | Boolean | — | Admin-toggled featured flag (default: false) |
-| `status` | String | — | `pending` → `approved` / `rejected` |
-| `submissionDate` | String | — | Auto-set to current date |
-| `isFree` | Boolean | — | Whether the event is free (default: true) |
-| `priceFrom` | Number | — | Price range start |
-| `priceTo` | Number | — | Price range end |
-| `isAdminCreated` | Boolean | — | True if created via admin dashboard |
-| `paymentStatus` | String | — | `unpaid` / `paid` |
-| `stripeSessionId` | String | — | Stripe Checkout session ID |
+| Field             | Type     | Required | Description                                                                                                                           |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`           | String   | ✅       | Event name (max 100 chars)                                                                                                            |
+| `description`     | String   | ✅       | Short description (max 2000 chars)                                                                                                    |
+| `fullDescription` | String   | —        | Extended description (legacy)                                                                                                         |
+| `category`        | String   | ✅       | One of: Webinar, Podcast, Conference, CPD Training, Awards Show, Festival, Exhibition                                                 |
+| `format`          | String   | ✅       | In-Person, Virtual, or Hybrid                                                                                                         |
+| `subjectAreas`    | [String] | —        | e.g. English, Maths, Science, STEM, Leadership, Technology, Inclusion, Assessment, Wellbeing, Humanities, Geography, SEND, Governance |
+| `phases`          | [String] | —        | e.g. Primary, Secondary, Further Education, Higher Education, Special Schools, Early Years, Independent                               |
+| `startDate`       | String   | ✅       | Format: `YYYY-MM-DD`                                                                                                                  |
+| `endDate`         | String   | ✅       | Format: `YYYY-MM-DD`                                                                                                                  |
+| `startTime`       | String   | ✅       | Format: `HH:MM` (24hr)                                                                                                                |
+| `endTime`         | String   | ✅       | Format: `HH:MM` (24hr)                                                                                                                |
+| `location`        | String   | ✅       | Venue or "Online via …"                                                                                                               |
+| `organiser`       | String   | ✅       | Organisation name (max 50 chars)                                                                                                      |
+| `organiserEmail`  | String   | ✅       | Contact email (validated)                                                                                                             |
+| `image`           | String   | ✅       | S3 URL of event image                                                                                                                 |
+| `bookingUrl`      | String   | ✅       | External booking/registration link                                                                                                    |
+| `featured`        | Boolean  | —        | Admin-toggled featured flag (default: false)                                                                                          |
+| `status`          | String   | —        | `pending` → `approved` / `rejected`                                                                                                   |
+| `submissionDate`  | String   | —        | Auto-set to current date                                                                                                              |
+| `isFree`          | Boolean  | —        | Whether the event is free (default: true)                                                                                             |
+| `priceFrom`       | Number   | —        | Price range start                                                                                                                     |
+| `priceTo`         | Number   | —        | Price range end                                                                                                                       |
+| `isAdminCreated`  | Boolean  | —        | True if created via admin dashboard                                                                                                   |
+| `paymentStatus`   | String   | —        | `unpaid` / `paid`                                                                                                                     |
+| `stripeSessionId` | String   | —        | Stripe Checkout session ID                                                                                                            |
 
 Timestamps (`createdAt`, `updatedAt`) are auto-managed by Mongoose.
 
@@ -177,19 +177,19 @@ Timestamps (`createdAt`, `updatedAt`) are auto-managed by Mongoose.
 
 ## Pages & Routes
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | Homepage | Hero section, search, featured carousel, latest events grid, CTA |
-| `/events` | Events Listing | Full event browser with category/format/subject/phase/date filters, search, sort, pagination |
-| `/event/[id]` | Event Detail | Full event info, date/time, location, pricing, sharing, booking link |
-| `/list-event` | List Your Event | Multi-step form (details → image → pricing → preview → payment) |
-| `/admin` | Admin Dashboard | Tabs: Pending Events, All Events. Approve/reject, edit, toggle featured |
-| `/login` | Admin Login | Email + password authentication |
-| `/about` | About Us | Company information |
-| `/contact` | Contact Us | Contact page |
-| `/privacy-policy` | Privacy Policy | Legal page |
-| `/terms-and-conditions` | Terms & Conditions | Legal page |
-| `/terms-of-use` | Terms of Use | Legal page |
+| Route                   | Page               | Description                                                                                  |
+| ----------------------- | ------------------ | -------------------------------------------------------------------------------------------- |
+| `/`                     | Homepage           | Hero section, search, featured carousel, latest events grid, CTA                             |
+| `/events`               | Events Listing     | Full event browser with category/format/subject/phase/date filters, search, sort, pagination |
+| `/event/[id]`           | Event Detail       | Full event info, date/time, location, pricing, sharing, booking link                         |
+| `/list-event`           | List Your Event    | Multi-step form (details → image → pricing → preview → payment)                              |
+| `/admin`                | Admin Dashboard    | Tabs: Pending Events, All Events. Approve/reject, edit, toggle featured                      |
+| `/login`                | Admin Login        | Email + password authentication                                                              |
+| `/about`                | About Us           | Company information                                                                          |
+| `/contact`              | Contact Us         | Contact page                                                                                 |
+| `/privacy-policy`       | Privacy Policy     | Legal page                                                                                   |
+| `/terms-and-conditions` | Terms & Conditions | Legal page                                                                                   |
+| `/terms-of-use`         | Terms of Use       | Legal page                                                                                   |
 
 ---
 
@@ -197,34 +197,34 @@ Timestamps (`createdAt`, `updatedAt`) are auto-managed by Mongoose.
 
 ### Events API
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/events` | List events with filtering (search, category, format, subject, phase, date range, sort) |
-| `POST` | `/api/events` | Submit new event (multipart form with image upload → S3) |
-| `GET` | `/api/events/[id]` | Get single event by ID |
-| `PUT` | `/api/events/[id]` | Update event |
-| `DELETE` | `/api/events/[id]` | Delete event |
+| Method   | Endpoint           | Description                                                                             |
+| -------- | ------------------ | --------------------------------------------------------------------------------------- |
+| `GET`    | `/api/events`      | List events with filtering (search, category, format, subject, phase, date range, sort) |
+| `POST`   | `/api/events`      | Submit new event (multipart form with image upload → S3)                                |
+| `GET`    | `/api/events/[id]` | Get single event by ID                                                                  |
+| `PUT`    | `/api/events/[id]` | Update event                                                                            |
+| `DELETE` | `/api/events/[id]` | Delete event                                                                            |
 
 ### Admin API
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/admin/events` | Get all events (including pending) |
-| `PUT` | `/api/admin/events/[id]` | Update event status (approve/reject), toggle featured, edit details |
+| Method | Endpoint                 | Description                                                         |
+| ------ | ------------------------ | ------------------------------------------------------------------- |
+| `GET`  | `/api/admin/events`      | Get all events (including pending)                                  |
+| `PUT`  | `/api/admin/events/[id]` | Update event status (approve/reject), toggle featured, edit details |
 
 ### Auth API
 
-| Method | Endpoint | Description |
-|---|---|---|
+| Method | Endpoint          | Description                |
+| ------ | ----------------- | -------------------------- |
 | `POST` | `/api/auth/login` | Validate admin credentials |
 
 ### Checkout API
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/checkout` | Create Stripe Checkout session (£99.00 GBP) |
-| `POST` | `/api/checkout/verify` | Verify payment status after redirect |
-| `POST` | `/api/checkout/cleanup` | Clean up expired/failed checkout sessions |
+| Method | Endpoint                | Description                                 |
+| ------ | ----------------------- | ------------------------------------------- |
+| `POST` | `/api/checkout`         | Create Stripe Checkout session (£99.00 GBP) |
+| `POST` | `/api/checkout/verify`  | Verify payment status after redirect        |
+| `POST` | `/api/checkout/cleanup` | Clean up expired/failed checkout sessions   |
 
 ---
 
@@ -232,54 +232,58 @@ Timestamps (`createdAt`, `updatedAt`) are auto-managed by Mongoose.
 
 ### Public-Facing
 
-| Component | File | Purpose |
-|---|---|---|
-| `Layout` | `Layout.tsx` | Wraps pages with `Header` + `Footer` |
-| `Header` | `Header.tsx` | Responsive navigation with mobile menu |
-| `Footer` | `Footer.tsx` | Footer links and copyright |
-| `EventCard` | `EventCard.tsx` | Event card with image, category badge, date/time, price, and link |
-| `FeaturedCarousel` | `FeaturedCarousel.tsx` | Auto-playing Embla carousel for featured events |
-| `SearchBar` | `SearchBar.tsx` | Search input with magnifying glass icon |
-| `ListEventContent` | `ListEventContent.tsx` | Multi-step event submission form (~1000 lines) |
-| `SubjectTagInput` | `SubjectTagInput.tsx` | Multi-select chips for subject areas |
-| `PhaseTagInput` | `PhaseTagInput.tsx` | Multi-select chips for educational phases |
-| `TimeInput` | `TimeInput.tsx` | Custom time picker with AM/PM |
+| Component          | File                   | Purpose                                                           |
+| ------------------ | ---------------------- | ----------------------------------------------------------------- |
+| `Layout`           | `Layout.tsx`           | Wraps pages with `Header` + `Footer`                              |
+| `Header`           | `Header.tsx`           | Responsive navigation with mobile menu                            |
+| `Footer`           | `Footer.tsx`           | Footer links and copyright                                        |
+| `EventCard`        | `EventCard.tsx`        | Event card with image, category badge, date/time, price, and link |
+| `FeaturedCarousel` | `FeaturedCarousel.tsx` | Auto-playing Embla carousel for featured events                   |
+| `SearchBar`        | `SearchBar.tsx`        | Search input with magnifying glass icon                           |
+| `ListEventContent` | `ListEventContent.tsx` | Multi-step event submission form (~1000 lines)                    |
+| `SubjectTagInput`  | `SubjectTagInput.tsx`  | Multi-select chips for subject areas                              |
+| `PhaseTagInput`    | `PhaseTagInput.tsx`    | Multi-select chips for educational phases                         |
+| `TimeInput`        | `TimeInput.tsx`        | Custom time picker with AM/PM                                     |
 
 ### Admin
 
-| Component | File | Purpose |
-|---|---|---|
-| `EventRow` | `admin/EventRow.tsx` | Event row in the "All Events" table with status, actions |
-| `PendingEventCard` | `admin/PendingEventCard.tsx` | Pending event card with approve/reject buttons |
-| `EventEditDialog` | `admin/EventEditDialog.tsx` | Full event edit modal with all fields |
+| Component          | File                         | Purpose                                                  |
+| ------------------ | ---------------------------- | -------------------------------------------------------- |
+| `EventRow`         | `admin/EventRow.tsx`         | Event row in the "All Events" table with status, actions |
+| `PendingEventCard` | `admin/PendingEventCard.tsx` | Pending event card with approve/reject buttons           |
+| `EventEditDialog`  | `admin/EventEditDialog.tsx`  | Full event edit modal with all fields                    |
 
 ### Providers
 
-| Component | File | Purpose |
-|---|---|---|
-| `Providers` | `Providers.tsx` | Wraps app with `AuthProvider`, `Toaster`, `QueryClientProvider` |
-| `AuthProvider` | `context/AuthContext.tsx` | Manages admin authentication state |
+| Component      | File                      | Purpose                                                         |
+| -------------- | ------------------------- | --------------------------------------------------------------- |
+| `Providers`    | `Providers.tsx`           | Wraps app with `AuthProvider`, `Toaster`, `QueryClientProvider` |
+| `AuthProvider` | `context/AuthContext.tsx` | Manages admin authentication state                              |
 
 ---
 
 ## Services & Libraries
 
 ### `src/lib/mongodb.ts` — Database Connection
+
 - Cached Mongoose connection to prevent connection leak during hot reloads
 - Uses `MONGODB_URI` from environment
 
 ### `src/lib/s3.ts` — File Storage
+
 - **`uploadToS3(filePath, folderName?)`** — Uploads local file to S3, returns URL, auto-deletes local file
 - **`deleteFromS3(key)`** — Deletes file from S3 bucket
 - Supports images, videos, documents, and audio files
 
 ### `src/lib/email.ts` — Email Notifications
+
 - Uses Nodemailer with Gmail SMTP
 - **`sendEventConfirmationEmail()`** — Confirms payment to organiser
 - **`sendAdminNewEventNotification()`** — Alerts admin of new submission
 - **`sendStatusUpdateEmail()`** — Notifies organiser of approval/rejection
 
 ### `src/lib/utils.ts` — Utility Functions
+
 - **`cn()`** — Merges Tailwind classes (clsx + tailwind-merge)
 - **`safeFormatDate()`** — Safely formats date strings with `date-fns`, handles invalid values
 - **`safeConvertTo12Hour()`** — Converts 24hr time to 12hr format safely
@@ -341,12 +345,12 @@ Reject  → status: "rejected" → Email sent
 
 ## Email Notifications
 
-| Trigger | Recipient | Template |
-|---|---|---|
-| Payment confirmed | Organiser | Payment confirmation with event title |
-| New event submitted | Admin | New event details with link to admin dashboard |
-| Event approved | Organiser | Approval confirmation with link to live events |
-| Event rejected | Organiser | Rejection notice |
+| Trigger             | Recipient | Template                                       |
+| ------------------- | --------- | ---------------------------------------------- |
+| Payment confirmed   | Organiser | Payment confirmation with event title          |
+| New event submitted | Admin     | New event details with link to admin dashboard |
+| Event approved      | Organiser | Approval confirmation with link to live events |
+| Event rejected      | Organiser | Rejection notice                               |
 
 All emails are sent from `SMTP_FROM` via Gmail SMTP using Nodemailer.
 
@@ -407,6 +411,7 @@ The project is configured for AWS Amplify deployment via `amplify.yml`:
 ## Development
 
 ### Prerequisites
+
 - Node.js (v20+)
 - npm
 - MongoDB instance (Atlas or local)

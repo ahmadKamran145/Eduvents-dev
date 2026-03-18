@@ -49,6 +49,7 @@ const ITEMS_PER_PAGE = 12;
 const EventsContent = () => {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
+  const initialPhase = (searchParams.get("phase") as EventPhase) || "all";
 
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +64,7 @@ const EventsContent = () => {
   const [selectedSubject, setSelectedSubject] = useState<SubjectArea | "all">(
     "all",
   );
-  const [selectedPhase, setSelectedPhase] = useState<EventPhase | "all">("all");
+  const [selectedPhase, setSelectedPhase] = useState<EventPhase | "all">(initialPhase);
   const [dateRange, setDateRange] = useState<Range>({
     startDate: undefined,
     endDate: undefined,
