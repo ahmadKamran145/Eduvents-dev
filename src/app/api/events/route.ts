@@ -11,6 +11,7 @@ import {
   sendAdminNewEventNotification,
   sendStatusUpdateEmail,
 } from "@/lib/email";
+import { geocodeAddress } from "@/lib/geocode";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -117,6 +118,12 @@ export async function POST(req: NextRequest) {
       imageUrl = uploadResult.url;
     }
 
+    // Geocode location for In-Person and Hybrid events at save time
+    let coords: { lat: number; lng: number } | null = null;
+    if (!isOnDemand && location && (format === "In-Person" || format === "Hybrid")) {
+      coords = await geocodeAddress(location);
+    }
+
     // Create Event
     const newEvent = new Event({
       title,
@@ -131,6 +138,7 @@ export async function POST(req: NextRequest) {
       image: imageUrl,
       bookingUrl,
       ...(isOnDemand ? { isFree: true } : {}),
+      ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
       status: isAdmin ? "approved" : "pending",
       featured: false,
       isAdminCreated: isAdmin,
