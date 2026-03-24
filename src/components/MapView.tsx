@@ -30,10 +30,11 @@ interface MapViewProps {
 export default function MapView({ events }: MapViewProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ["marker"],
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [infoPosition, setInfoPosition] = useState<{
@@ -58,7 +59,7 @@ export default function MapView({ events }: MapViewProps) {
     if (!mapRef.current || !isLoaded || !mapReady) return;
 
     // Remove old markers
-    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current.forEach((m) => (m.map = null));
     markersRef.current = [];
 
     if (eventsWithCoords.length === 0) {
@@ -75,27 +76,21 @@ export default function MapView({ events }: MapViewProps) {
 
       const color = CATEGORY_COLORS[event.category] || "#3B82F6";
 
-      // Standard map pin SVG path (like Google Maps default red pin)
-      const pinPath =
-        "M12 0C5.372 0 0 5.372 0 12c0 9 12 24 12 24s12-15 12-24c0-6.628-5.372-12-12-12zm0 16.8a4.8 4.8 0 1 1 0-9.6 4.8 4.8 0 0 1 0 9.6z";
+      const pin = new google.maps.marker.PinElement({
+        background: color,
+        borderColor: "#ffffff",
+        glyphColor: "#ffffff",
+        scale: 1.2,
+      });
 
-      const marker = new google.maps.Marker({
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         position,
         map: mapRef.current!,
         title: event.title,
-        icon: {
-          path: pinPath,
-          fillColor: color,
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 1.5,
-          scale: 1.4,
-          anchor: new google.maps.Point(12, 36),
-          labelOrigin: new google.maps.Point(12, 12),
-        },
+        content: pin,
       });
 
-      marker.addListener("click", () => {
+      marker.addEventListener("gmp-click", () => {
         setSelectedEvent(event);
         setInfoPosition(position);
       });
@@ -140,6 +135,7 @@ export default function MapView({ events }: MapViewProps) {
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: true,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID",
         }}
         onClick={() => {
           setSelectedEvent(null);
