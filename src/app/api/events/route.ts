@@ -118,9 +118,9 @@ export async function POST(req: NextRequest) {
       imageUrl = uploadResult.url;
     }
 
-    // Geocode location for non-On Demand events that have a location
+    // Geocode location for In-Person and Hybrid events at save time
     let coords: { lat: number; lng: number } | null = null;
-    if (!isOnDemand && location) {
+    if (!isOnDemand && location && (format === "In-Person" || format === "Hybrid")) {
       coords = await geocodeAddress(location);
     }
 

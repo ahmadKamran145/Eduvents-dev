@@ -112,7 +112,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
                 delete updateData[key];
             }
             updateData.isFree = true;
-        } else {
+        } else if (finalFormat === 'In-Person' || finalFormat === 'Hybrid') {
             // Re-geocode if location or format changed
             const locationChanged = updateData.location && updateData.location !== existingEvent.location;
             const formatChanged = updateData.format && updateData.format !== existingEvent.format;

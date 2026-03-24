@@ -39,7 +39,10 @@ export default function MapView({ events }: MapViewProps) {
   const [infoPosition, setInfoPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   const eventsWithCoords = events.filter(
-    (e) => e.lat != null && e.lng != null && e.format !== "On Demand",
+    (e) =>
+      e.lat != null &&
+      e.lng != null &&
+      (e.format === "In-Person" || e.format === "Hybrid"),
   );
 
   const onMapLoad = useCallback((map: google.maps.Map) => {

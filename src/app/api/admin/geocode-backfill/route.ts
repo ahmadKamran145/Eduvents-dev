@@ -18,6 +18,7 @@ export async function POST() {
     const events = await Event.find({
       status: "approved",
       paymentStatus: "paid",
+      format: { $in: ["In-Person", "Hybrid"] },
       location: { $exists: true, $ne: "" },
       $or: [{ lat: { $exists: false } }, { lat: null }],
     });
