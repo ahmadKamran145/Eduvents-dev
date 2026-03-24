@@ -42,7 +42,7 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
       </p> */}
       <div
         ref={zoneRef}
-        className="adplugg-tag overflow-hidden bg-muted/20 flex items-center justify-center rounded-md"
+        className="adplugg-tag overflow-hidden flex items-center justify-center rounded-md max-w-[900px] max-h-[150px]"
         data-adplugg-zone={zoneName}
       >
         {/* AdPlugg ad creative will be injected here */}

@@ -85,7 +85,7 @@ export default function Home() {
             </form>
 
             {/* Phase Filter Buttons */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
+            <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-8 max-w-xl mx-auto">
               {[
                 { label: "Primary", value: "Primary" },
                 { label: "Secondary", value: "Secondary" },
@@ -99,9 +99,9 @@ export default function Home() {
                   href={`/events?phase=${encodeURIComponent(value)}`}
                 >
                   <Button
-                    variant="default"
+                    variant="outline"
                     size="sm"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4"
+                    className="border-primary text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary rounded-md px-3 sm:px-4 text-xs sm:text-sm"
                   >
                     {label}
                   </Button>
