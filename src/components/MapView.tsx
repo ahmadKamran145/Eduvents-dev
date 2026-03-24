@@ -41,6 +41,14 @@ export default function MapView({ events }: MapViewProps) {
     lat: number;
     lng: number;
   } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const eventsWithCoords = events.filter(
     (e) =>
@@ -149,9 +157,9 @@ export default function MapView({ events }: MapViewProps) {
               setSelectedEvent(null);
               setInfoPosition(null);
             }}
-            options={{ maxWidth: 320, disableAutoPan: false }}
+            options={{ maxWidth: isMobile ? 260 : 320, disableAutoPan: false }}
           >
-            <MapEventCard event={selectedEvent} />
+            <MapEventCard event={selectedEvent} isMobile={isMobile} />
           </InfoWindow>
         )}
       </GoogleMap>
@@ -167,7 +175,7 @@ export default function MapView({ events }: MapViewProps) {
   );
 }
 
-function MapEventCard({ event }: { event: Event }) {
+function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) {
   const color = CATEGORY_COLORS[event.category] || "#3B82F6";
   const isOnDemand = event.format === "On Demand";
   const formattedDate =
@@ -180,25 +188,25 @@ function MapEventCard({ event }: { event: Event }) {
   const endTime = safeConvertTo12Hour(event.endTime);
 
   return (
-    <div className="w-full max-w-72 font-sans overflow-hidden">
+    <div className={`w-full font-sans overflow-hidden ${isMobile ? "max-w-[220px]" : "max-w-72"}`}>
       {/* Image with category badge overlay */}
-      <div className="relative -mx-2 -mt-2 mb-3">
+      <div className="relative -mx-2 -mt-2 mb-2 sm:mb-3">
         {event.image ? (
           <img
             src={event.image}
             alt={event.title}
-            className="w-full h-36 object-cover"
+            className={`w-full object-cover ${isMobile ? "h-24" : "h-36"}`}
           />
         ) : (
           <div
-            className="w-full h-24"
+            className={`w-full ${isMobile ? "h-16" : "h-24"}`}
             style={{
               background: `linear-gradient(135deg, ${color}20, ${color}40)`,
             }}
           />
         )}
         <span
-          className="absolute top-2 left-2 px-2.5 py-1 text-[11px] font-semibold text-white rounded-md shadow-sm"
+          className={`absolute top-2 left-2 font-semibold text-white rounded-md shadow-sm ${isMobile ? "px-1.5 py-0.5 text-[9px]" : "px-2.5 py-1 text-[11px]"}`}
           style={{ backgroundColor: color }}
         >
           {event.category}
@@ -206,41 +214,41 @@ function MapEventCard({ event }: { event: Event }) {
       </div>
 
       {/* Title */}
-      <h3 className="font-bold text-[15px] leading-snug text-gray-900 mb-2 line-clamp-2">
+      <h3 className={`font-bold leading-snug text-gray-900 mb-1.5 line-clamp-2 ${isMobile ? "text-[13px]" : "text-[15px] mb-2"}`}>
         {event.title}
       </h3>
 
       {/* Event details */}
       {!isOnDemand && (
-        <div className="space-y-1.5 text-[13px] text-gray-500 mb-3">
+        <div className={`text-gray-500 mb-2 ${isMobile ? "space-y-1 text-[11px]" : "space-y-1.5 text-[13px] mb-3"}`}>
           {formattedDate && (
-            <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
-              <span>{formattedDate}</span>
+            <div className="flex items-center gap-1.5">
+              <Calendar className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
+              <span className="truncate">{formattedDate}</span>
             </div>
           )}
           {startTime && (
-            <div className="flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
+            <div className="flex items-center gap-1.5">
+              <Clock className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
               <span>
                 {startTime} – {endTime}
               </span>
             </div>
           )}
           {event.location && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
+            <div className="flex items-center gap-1.5">
+              <MapPin className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
               <span className="line-clamp-1">{event.location}</span>
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <PoundSterling className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
+          <div className="flex items-center gap-1.5">
+            <PoundSterling className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
             {event.isFree ? (
-              <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded-full text-xs font-semibold">
+              <span className={`bg-green-50 text-green-600 rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
                 Free
               </span>
             ) : (
-              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">
+              <span className={`bg-blue-50 text-blue-600 rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
                 {event.priceFrom != null && event.priceTo != null
                   ? `£${event.priceFrom} – £${event.priceTo}`
                   : `£${event.price ?? event.priceFrom ?? event.priceTo}`}
@@ -253,7 +261,7 @@ function MapEventCard({ event }: { event: Event }) {
       {/* View Details button */}
       <Link href={`/event/${event.slug || event.id}`}>
         <button
-          className="w-full text-sm py-2 px-4 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm"
+          className={`w-full rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm ${isMobile ? "text-xs py-1.5 px-3" : "text-sm py-2 px-4"}`}
           style={{ backgroundColor: color }}
         >
           View Details
