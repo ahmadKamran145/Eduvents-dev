@@ -484,7 +484,7 @@ const EventsContent = () => {
             </div>
 
             {/* Results Count */}
-            {!isLoading && (
+            {!isLoading && viewMode === "list" && (
               <p className="text-muted-foreground mb-6">
                 Showing {paginatedEvents.length} of {allEvents.length} events
               </p>
