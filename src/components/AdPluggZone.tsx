@@ -37,9 +37,9 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
         className,
       )}
     >
-      <p className="text-[10px] text-muted-foreground uppercase tracking-widest text-center mb-1">
+      {/* <p className="text-[10px] text-muted-foreground uppercase tracking-widest text-center mb-1">
         Advertisement
-      </p>
+      </p> */}
       <div
         ref={zoneRef}
         className="adplugg-tag overflow-hidden bg-muted/20 flex items-center justify-center rounded-md"
