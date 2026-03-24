@@ -149,6 +149,7 @@ export default function MapView({ events }: MapViewProps) {
               setSelectedEvent(null);
               setInfoPosition(null);
             }}
+            options={{ maxWidth: 320, disableAutoPan: false }}
           >
             <MapEventCard event={selectedEvent} />
           </InfoWindow>
