@@ -1,43 +1,61 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Event from "@/models/Event";
-import { geocodeAddress } from "@/lib/geocode";
 
 export async function POST() {
   try {
     await dbConnect();
 
-    // Find all In-Person / Hybrid events that are missing coordinates
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { success: false, message: "GOOGLE_MAPS_API_KEY is not set" },
+        { status: 500 },
+      );
+    }
+
+    // Find only approved, paid events with a location that are missing coordinates
     const events = await Event.find({
-      format: { $in: ["In-Person", "Hybrid"] },
+      status: "approved",
+      paymentStatus: "paid",
       location: { $exists: true, $ne: "" },
       $or: [{ lat: { $exists: false } }, { lat: null }],
     });
 
     let succeeded = 0;
     let failed = 0;
+    const details: { title: string; location: string; status: string; error?: string }[] = [];
 
     for (const event of events) {
       try {
-        // Debug: log what Google returns
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-        const debugUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(event.location)}&key=${apiKey}`;
-        const debugRes = await fetch(debugUrl);
-        const debugData = await debugRes.json();
-        console.log(`[geocode] "${event.location}" → status: ${debugData.status}, error: ${debugData.error_message || "none"}`);
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(event.location)}&key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-        const coords = await geocodeAddress(event.location);
-        if (coords) {
+        if (data.status === "OK" && data.results?.[0]?.geometry?.location) {
+          const { lat, lng } = data.results[0].geometry.location;
           await Event.findByIdAndUpdate(event._id, {
-            $set: { lat: coords.lat, lng: coords.lng },
+            $set: { lat, lng },
           });
           succeeded++;
+          details.push({ title: event.title, location: event.location, status: "ok" });
         } else {
           failed++;
+          details.push({
+            title: event.title,
+            location: event.location,
+            status: data.status,
+            error: data.error_message,
+          });
         }
-      } catch (err) {
-        console.error(`[geocode] failed for "${event.location}":`, err);
+      } catch (err: any) {
         failed++;
+        details.push({
+          title: event.title,
+          location: event.location,
+          status: "exception",
+          error: err.message,
+        });
       }
     }
 
@@ -46,6 +64,7 @@ export async function POST() {
       processed: events.length,
       succeeded,
       failed,
+      details,
     });
   } catch (error: any) {
     return NextResponse.json(

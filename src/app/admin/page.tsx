@@ -37,7 +37,15 @@ const AdminDashboard = () => {
       const res = await fetch("/api/admin/geocode-backfill", { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        toast.success(`Geocoded ${data.succeeded} of ${data.processed} events (${data.failed} failed)`);
+        if (data.processed === 0) {
+          toast.success("All approved events are already geocoded");
+        } else if (data.failed > 0 && data.succeeded === 0) {
+          toast.error(`Failed to geocode ${data.failed} approved event(s) — invalid locations`);
+        } else if (data.failed > 0) {
+          toast.success(`Geocoded ${data.succeeded} approved event(s), ${data.failed} failed (invalid locations)`);
+        } else {
+          toast.success(`Geocoded ${data.succeeded} approved event(s) successfully`);
+        }
       } else {
         toast.error(data.message || "Geocoding failed");
       }

@@ -16,6 +16,7 @@ import Layout from "@/components/Layout";
 import EventCard from "@/components/EventCard";
 import MapView from "@/components/MapView";
 import SearchBar from "@/components/SearchBar";
+import AdPluggZone from "@/components/AdPluggZone";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -398,6 +399,8 @@ const EventsContent = () => {
         </div>
       </div>
 
+      <AdPluggZone zoneName="upper_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 pt-6" />
+
       <div className="container-tight py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
@@ -405,6 +408,7 @@ const EventsContent = () => {
             <div className="bg-card rounded-lg p-6 shadow-card sticky top-24">
               <h2 className="font-semibold text-lg mb-4">Filters</h2>
               {renderFilterSection()}
+
             </div>
           </aside>
 
@@ -580,6 +584,8 @@ const EventsContent = () => {
                 )}
               </div>
             )}
+            
+            <AdPluggZone zoneName="content_ad" className="mt-12" />
           </div>
         </div>
       </div>

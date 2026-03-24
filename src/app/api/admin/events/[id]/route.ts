@@ -107,8 +107,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         const finalFormat = updateData.format || existingEvent.format;
         if (updateData.format === 'On Demand') {
             unsetFields = { startDate: 1, endDate: 1, startTime: 1, endTime: 1, location: 1, priceFrom: 1, priceTo: 1, lat: 1, lng: 1 };
+            // Remove fields from $set that will be in $unset to avoid MongoDB conflict
+            for (const key of Object.keys(unsetFields)) {
+                delete updateData[key];
+            }
             updateData.isFree = true;
-        } else if (finalFormat === 'In-Person' || finalFormat === 'Hybrid') {
+        } else {
             // Re-geocode if location or format changed
             const locationChanged = updateData.location && updateData.location !== existingEvent.location;
             const formatChanged = updateData.format && updateData.format !== existingEvent.format;

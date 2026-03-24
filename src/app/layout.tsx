@@ -41,6 +41,12 @@ export default function RootLayout({
             gtag('config', 'G-VCZ75NPDE0');
           `}
         </Script>
+        {/* AdPlugg Tag Script */}
+        <Script
+          id="adplugg-adjs"
+          src="//www.adplugg.com/serve/A48226912/js/1.1/ad.js"
+          strategy="afterInteractive"
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

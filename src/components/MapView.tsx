@@ -34,23 +34,22 @@ export default function MapView({ events }: MapViewProps) {
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const [mapReady, setMapReady] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [infoPosition, setInfoPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   const eventsWithCoords = events.filter(
-    (e) =>
-      e.lat != null &&
-      e.lng != null &&
-      (e.format === "In-Person" || e.format === "Hybrid"),
+    (e) => e.lat != null && e.lng != null && e.format !== "On Demand",
   );
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    setMapReady(true);
   }, []);
 
   // Clear old markers and draw new ones whenever eventsWithCoords changes
   useEffect(() => {
-    if (!mapRef.current || !isLoaded) return;
+    if (!mapRef.current || !isLoaded || !mapReady) return;
 
     // Remove old markers
     markersRef.current.forEach((m) => m.setMap(null));
@@ -98,7 +97,7 @@ export default function MapView({ events }: MapViewProps) {
     } else {
       mapRef.current.fitBounds(bounds);
     }
-  }, [eventsWithCoords, isLoaded]);
+  }, [eventsWithCoords, isLoaded, mapReady]);
 
   if (loadError) {
     return (
@@ -151,7 +150,7 @@ export default function MapView({ events }: MapViewProps) {
       {eventsWithCoords.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/60 pointer-events-none">
           <p className="bg-card px-4 py-2 rounded shadow text-sm text-muted-foreground">
-            No events found for this location. Try a different search.
+            No events with map coordinates found. Try a different search.
           </p>
         </div>
       )}
