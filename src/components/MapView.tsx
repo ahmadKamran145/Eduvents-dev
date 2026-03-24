@@ -90,7 +90,7 @@ export default function MapView({ events }: MapViewProps) {
         content: pin,
       });
 
-      marker.addEventListener("gmp-click", () => {
+      marker.addListener("click", () => {
         setSelectedEvent(event);
         setInfoPosition(position);
       });
@@ -179,53 +179,67 @@ function MapEventCard({ event }: { event: Event }) {
   const endTime = safeConvertTo12Hour(event.endTime);
 
   return (
-    <div className="w-64 font-sans">
-      {event.image && (
-        <img
-          src={event.image}
-          alt={event.title}
-          className="w-full h-32 object-cover rounded mb-2"
-        />
-      )}
-      <span
-        className="inline-block px-2 py-0.5 text-xs font-semibold text-white rounded-full mb-1"
-        style={{ backgroundColor: color }}
-      >
-        {event.category}
-      </span>
-      <h3 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-2">
+    <div className="w-72 font-sans overflow-hidden">
+      {/* Image with category badge overlay */}
+      <div className="relative -mx-2 -mt-2 mb-3">
+        {event.image ? (
+          <img
+            src={event.image}
+            alt={event.title}
+            className="w-full h-36 object-cover"
+          />
+        ) : (
+          <div
+            className="w-full h-24"
+            style={{
+              background: `linear-gradient(135deg, ${color}20, ${color}40)`,
+            }}
+          />
+        )}
+        <span
+          className="absolute top-2 left-2 px-2.5 py-1 text-[11px] font-semibold text-white rounded-md shadow-sm"
+          style={{ backgroundColor: color }}
+        >
+          {event.category}
+        </span>
+      </div>
+
+      {/* Title */}
+      <h3 className="font-bold text-[15px] leading-snug text-gray-900 mb-2 line-clamp-2">
         {event.title}
       </h3>
+
+      {/* Event details */}
       {!isOnDemand && (
-        <div className="space-y-1 text-xs text-gray-600 mb-2">
+        <div className="space-y-1.5 text-[13px] text-gray-500 mb-3">
           {formattedDate && (
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-blue-500 flex-shrink-0" />
+            <div className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
               <span>{formattedDate}</span>
             </div>
           )}
           {startTime && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3 text-blue-500 flex-shrink-0" />
+            <div className="flex items-center gap-2">
+              <Clock className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
               <span>
                 {startTime} – {endTime}
               </span>
             </div>
           )}
           {event.location && (
-            <div className="flex items-center gap-1">
-              <MapPin className="h-3 w-3 text-blue-500 flex-shrink-0" />
+            <div className="flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
               <span className="line-clamp-1">{event.location}</span>
             </div>
           )}
-          <div className="flex items-center gap-1">
-            <PoundSterling className="h-3 w-3 text-blue-500 flex-shrink-0" />
+          <div className="flex items-center gap-2">
+            <PoundSterling className="h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
             {event.isFree ? (
-              <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+              <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded-full text-xs font-semibold">
                 Free
               </span>
             ) : (
-              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">
                 {event.priceFrom != null && event.priceTo != null
                   ? `£${event.priceFrom} – £${event.priceTo}`
                   : `£${event.price ?? event.priceFrom ?? event.priceTo}`}
@@ -234,8 +248,13 @@ function MapEventCard({ event }: { event: Event }) {
           </div>
         </div>
       )}
+
+      {/* View Details button */}
       <Link href={`/event/${event.slug || event.id}`}>
-        <button className="w-full text-xs py-1.5 px-3 border border-gray-300 rounded hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors font-medium">
+        <button
+          className="w-full text-sm py-2 px-4 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm"
+          style={{ backgroundColor: color }}
+        >
           View Details
         </button>
       </Link>
