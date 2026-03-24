@@ -519,39 +519,86 @@ const EventsContent = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-12">
+                  <div className="flex justify-center items-center gap-1 mt-12 flex-wrap">
                     <Button
                       variant="outline"
+                      size="sm"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                      className="w-9 h-9 p-0"
+                      title="First"
+                    >
+                      &laquo;
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((p) => p - 1)}
+                      className="w-9 h-9 p-0"
+                      title="Previous"
                     >
-                      Previous
+                      &lsaquo;
                     </Button>
 
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <Button
-                            key={page}
-                            variant={
-                              currentPage === page ? "default" : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                            className="w-10"
-                          >
-                            {page}
-                          </Button>
-                        ),
-                      )}
+                      {(() => {
+                        const pages: (number | string)[] = [];
+                        if (totalPages <= 7) {
+                          for (let i = 1; i <= totalPages; i++) pages.push(i);
+                        } else {
+                          pages.push(1);
+                          if (currentPage > 3) pages.push("...");
+                          const start = Math.max(2, currentPage - 1);
+                          const end = Math.min(totalPages - 1, currentPage + 1);
+                          for (let i = start; i <= end; i++) pages.push(i);
+                          if (currentPage < totalPages - 2) pages.push("...");
+                          pages.push(totalPages);
+                        }
+                        return pages.map((page, idx) =>
+                          typeof page === "string" ? (
+                            <span
+                              key={`ellipsis-${idx}`}
+                              className="px-1 text-muted-foreground text-sm"
+                            >
+                              ...
+                            </span>
+                          ) : (
+                            <Button
+                              key={page}
+                              variant={
+                                currentPage === page ? "default" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setCurrentPage(page)}
+                              className="w-9 h-9 p-0 text-sm"
+                            >
+                              {page}
+                            </Button>
+                          ),
+                        );
+                      })()}
                     </div>
 
                     <Button
                       variant="outline"
+                      size="sm"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage((p) => p + 1)}
+                      className="w-9 h-9 p-0"
+                      title="Next"
                     >
-                      Next
+                      &rsaquo;
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="w-9 h-9 p-0"
+                      title="Last"
+                    >
+                      &raquo;
                     </Button>
                   </div>
                 )}
