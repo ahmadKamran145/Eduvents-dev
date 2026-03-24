@@ -42,7 +42,7 @@ export default function RootLayout({
           `}
         </Script>
         {/* AdPlugg SDK - using official snippet */}
-        <Script id="adplugg-adjs" strategy="afterInteractive">
+        <Script id="adplugg-loader" strategy="afterInteractive">
           {`
             (function(ac) {
               var d = document, s = 'script', id = 'adplugg-adjs';
