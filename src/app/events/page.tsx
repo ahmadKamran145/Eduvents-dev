@@ -425,12 +425,12 @@ const EventsContent = () => {
                 className="flex-1"
               />
 
-              <div className="flex gap-4">
+              <div className="flex gap-2 sm:gap-4">
                 {/* List / Map toggle */}
-                <div className="flex rounded-md border border-input overflow-hidden h-12">
+                <div className="flex rounded-md border border-input overflow-hidden h-10 sm:h-12">
                   <button
                     onClick={() => setViewMode("list")}
-                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 text-sm font-medium transition-colors ${
                       viewMode === "list"
                         ? "bg-primary text-primary-foreground"
                         : "bg-card text-muted-foreground hover:bg-muted"
@@ -441,7 +441,7 @@ const EventsContent = () => {
                   </button>
                   <button
                     onClick={() => setViewMode("map")}
-                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors border-l border-input ${
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 text-sm font-medium transition-colors border-l border-input ${
                       viewMode === "map"
                         ? "bg-primary text-primary-foreground"
                         : "bg-card text-muted-foreground hover:bg-muted"
@@ -454,7 +454,7 @@ const EventsContent = () => {
 
                 <Button
                   variant="outline"
-                  className="lg:hidden w-[160px] h-12"
+                  className="lg:hidden w-auto sm:w-[160px] h-10 sm:h-12"
                   onClick={() => setShowMobileFilters(true)}
                 >
                   <div className="relative mr-2">
@@ -632,10 +632,11 @@ const EventsContent = () => {
               </div>
             )}
             
-            <AdPluggZone zoneName="content_ad" className="mt-12" />
           </div>
         </div>
       </div>
+
+      <AdPluggZone zoneName="content_ad" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 pb-6" />
 
       {/* Mobile Filters Modal */}
       {showMobileFilters && (

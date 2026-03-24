@@ -30,6 +30,11 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
     }
 
     const tryFill = () => {
+      // Clear previous ad content so a fresh ad is served
+      if (container) {
+        container.innerHTML = "";
+      }
+
       // Re-run the AdPlugg script to scan new zones
       const existingScript = document.getElementById("adplugg-adjs");
       if (existingScript) {
@@ -38,7 +43,7 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
       const script = document.createElement("script");
       script.id = "adplugg-adjs";
       script.async = true;
-      script.src = "//www.adplugg.com/serve/A48226912/js/1.1/ad.js";
+      script.src = `//www.adplugg.com/serve/A48226912/js/1.1/ad.js?t=${Date.now()}`;
       document.head.appendChild(script);
     };
 
