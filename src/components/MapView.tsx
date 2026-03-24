@@ -70,19 +70,23 @@ export default function MapView({ events }: MapViewProps) {
       const position = { lat: event.lat!, lng: event.lng! };
       bounds.extend(position);
 
-      const color = CATEGORY_COLORS[event.category] || "#3B82F6";
+      // Standard map pin SVG path (like Google Maps default red pin)
+      const pinPath =
+        "M12 0C5.372 0 0 5.372 0 12c0 9 12 24 12 24s12-15 12-24c0-6.628-5.372-12-12-12zm0 16.8a4.8 4.8 0 1 1 0-9.6 4.8 4.8 0 0 1 0 9.6z";
 
       const marker = new google.maps.Marker({
         position,
         map: mapRef.current!,
         title: event.title,
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: color,
+          path: pinPath,
+          fillColor: "#16A34A",
           fillOpacity: 1,
           strokeColor: "#ffffff",
-          strokeWeight: 2,
-          scale: 10,
+          strokeWeight: 1.5,
+          scale: 1.4,
+          anchor: new google.maps.Point(12, 36),
+          labelOrigin: new google.maps.Point(12, 12),
         },
       });
 
