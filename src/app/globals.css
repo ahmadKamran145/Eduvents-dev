@@ -147,10 +147,11 @@
 
 /* Google Maps InfoWindow – prevent internal scrollbar */
 .gm-style-iw-d {
-  overflow: auto !important;
+  overflow: hidden !important;
   max-height: none !important;
 }
 .gm-style-iw.gm-style-iw-c {
   max-height: none !important;
+  max-width: calc(100vw - 80px) !important;
   padding: 8px !important;
 }

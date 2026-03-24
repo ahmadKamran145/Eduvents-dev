@@ -180,7 +180,7 @@ function MapEventCard({ event }: { event: Event }) {
   const endTime = safeConvertTo12Hour(event.endTime);
 
   return (
-    <div className="w-72 font-sans overflow-hidden">
+    <div className="w-full max-w-72 font-sans overflow-hidden">
       {/* Image with category badge overlay */}
       <div className="relative -mx-2 -mt-2 mb-3">
         {event.image ? (
