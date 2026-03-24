@@ -427,7 +427,7 @@ const EventsContent = () => {
 
               <div className="flex gap-2 sm:gap-4">
                 {/* List / Map toggle */}
-                <div className="flex rounded-md border border-input overflow-hidden h-10 sm:h-12">
+                <div className="flex rounded-md border border-input overflow-hidden h-10">
                   <button
                     onClick={() => setViewMode("list")}
                     className={`flex items-center gap-1.5 px-2.5 sm:px-3 text-sm font-medium transition-colors ${
@@ -454,7 +454,7 @@ const EventsContent = () => {
 
                 <Button
                   variant="outline"
-                  className="lg:hidden w-auto sm:w-[160px] h-10 sm:h-12"
+                  className="lg:hidden w-auto sm:w-[160px] h-10"
                   onClick={() => setShowMobileFilters(true)}
                 >
                   <div className="relative mr-2">
@@ -472,7 +472,7 @@ const EventsContent = () => {
                   value={sortBy}
                   onValueChange={(v) => setSortBy(v as typeof sortBy)}
                 >
-                  <SelectTrigger className="w-[160px] h-12 bg-card">
+                  <SelectTrigger className="w-[160px] h-10 bg-card">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent className="bg-card">
