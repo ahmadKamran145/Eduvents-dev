@@ -36,7 +36,10 @@ export default function MapView({ events }: MapViewProps) {
   const markersRef = useRef<google.maps.Marker[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [infoPosition, setInfoPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [infoPosition, setInfoPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const eventsWithCoords = events.filter(
     (e) =>
@@ -70,6 +73,8 @@ export default function MapView({ events }: MapViewProps) {
       const position = { lat: event.lat!, lng: event.lng! };
       bounds.extend(position);
 
+      const color = CATEGORY_COLORS[event.category] || "#3B82F6";
+
       // Standard map pin SVG path (like Google Maps default red pin)
       const pinPath =
         "M12 0C5.372 0 0 5.372 0 12c0 9 12 24 12 24s12-15 12-24c0-6.628-5.372-12-12-12zm0 16.8a4.8 4.8 0 1 1 0-9.6 4.8 4.8 0 0 1 0 9.6z";
@@ -80,7 +85,7 @@ export default function MapView({ events }: MapViewProps) {
         title: event.title,
         icon: {
           path: pinPath,
-          fillColor: "#16A34A",
+          fillColor: color,
           fillOpacity: 1,
           strokeColor: "#ffffff",
           strokeWeight: 1.5,
@@ -234,9 +239,7 @@ function MapEventCard({ event }: { event: Event }) {
         </div>
       )}
       <Link href={`/event/${event.slug || event.id}`}>
-        <button
-          className="w-full text-xs py-1.5 px-3 border border-gray-300 rounded hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors font-medium"
-        >
+        <button className="w-full text-xs py-1.5 px-3 border border-gray-300 rounded hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors font-medium">
           View Details
         </button>
       </Link>
