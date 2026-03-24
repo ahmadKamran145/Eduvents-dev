@@ -63,7 +63,7 @@ export default function Home() {
 
             <form
               onSubmit={handleSearch}
-              className="flex gap-3 max-w-3xl mx-auto mb-8"
+              className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto mb-8"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -78,7 +78,7 @@ export default function Home() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 px-6 bg-foreground text-background hover:bg-foreground/90"
+                className="h-12 px-6 w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90"
               >
                 Search
               </Button>
@@ -92,7 +92,8 @@ export default function Home() {
                 { label: "Further Ed", value: "Further Education" },
                 { label: "Higher Ed", value: "Higher Education" },
                 { label: "Special Ed", value: "Special Schools" },
-                { label: "Early Years", value: "Early Years" },
+                { label: "Early Yrs", value: "Early Years" },
+                { label: "Independent", value: "Independent" },
               ].map(({ label, value }) => (
                 <Link
                   key={value}
@@ -101,7 +102,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-primary text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary rounded-md px-2.5 py-1 h-auto text-xs sm:text-sm sm:px-3 sm:py-1.5"
+                    className="border-primary text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary rounded-md px-2.5 py-1 h-auto text-xs sm:text-sm sm:px-2.5 sm:py-1.5"
                   >
                     {label}
                   </Button>
@@ -122,7 +123,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
       {/* Featured Events Section - Moved up */}
       <section className="py-12 bg-background">
@@ -152,7 +152,10 @@ export default function Home() {
         </div>
       </section>
 
-      <AdPluggZone zoneName="mid_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8" />
+      <AdPluggZone
+        zoneName="mid_banner"
+        className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8"
+      />
 
       {/* Latest Events Grid */}
       <section className="py-16 bg-muted/50">
@@ -219,7 +222,10 @@ export default function Home() {
         </div>
       </section>
 
-      <AdPluggZone zoneName="footer_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 py-8" />
+      <AdPluggZone
+        zoneName="footer_banner"
+        className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-hero">
