@@ -19,6 +19,8 @@ frontend:
         - echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> .env.production
         - echo "ADMIN_CREDENTIALS=$ADMIN_CREDENTIALS" >> .env.production
         - echo "CRON_SECRET=$CRON_SECRET" >> .env.production
+        - echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY" >> .env.production
+        - echo "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" >> .env.production
     build:
       commands:
         - npm run build
@@ -49,3 +51,5 @@ env:
     - ADMIN_EMAIL
     - ADMIN_CREDENTIALS
     - CRON_SECRET
+    - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    - GOOGLE_MAPS_API_KEY
