@@ -63,7 +63,7 @@ export default function Home() {
 
             <form
               onSubmit={handleSearch}
-              className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto mb-8"
+              className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto mb-8"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -85,7 +85,7 @@ export default function Home() {
             </form>
 
             {/* Phase Filter Buttons */}
-            <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-8 max-w-xl mx-auto">
+            <div className="flex flex-wrap justify-start gap-1.5 sm:gap-2 mb-8 max-w-2xl mx-auto">
               {[
                 { label: "Primary", value: "Primary" },
                 { label: "Secondary", value: "Secondary" },
@@ -101,7 +101,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-primary text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary rounded-md px-3 sm:px-4 text-xs sm:text-sm"
+                    className="border-primary text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary rounded-md px-2.5 py-1 h-auto text-xs sm:text-sm sm:px-3 sm:py-1.5"
                   >
                     {label}
                   </Button>
