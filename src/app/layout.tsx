@@ -41,12 +41,19 @@ export default function RootLayout({
             gtag('config', 'G-VCZ75NPDE0');
           `}
         </Script>
-        {/* AdPlugg Tag Script */}
-        <Script
-          id="adplugg-adjs"
-          src="//www.adplugg.com/serve/A48226912/js/1.1/ad.js"
-          strategy="afterInteractive"
-        />
+        {/* AdPlugg SDK - using official snippet */}
+        <Script id="adplugg-adjs" strategy="afterInteractive">
+          {`
+            (function(ac) {
+              var d = document, s = 'script', id = 'adplugg-adjs';
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) return;
+              js = d.createElement(s); js.id = id; js.async = 1;
+              js.src = '//www.adplugg.com/serve/' + ac + '/js/1.1/ad.js';
+              fjs.parentNode.insertBefore(js, fjs);
+            }('A48226912'));
+          `}
+        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>
