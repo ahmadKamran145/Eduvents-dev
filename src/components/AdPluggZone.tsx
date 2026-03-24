@@ -12,13 +12,22 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
   const zoneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Tell AdPlugg to rescan the DOM and fill this zone
-    const win = window as any;
-    if (win.adplugg && typeof win.adplugg.fill === "function") {
-      win.adplugg.fill(zoneRef.current);
-    } else if (win.AdPlugg && typeof win.AdPlugg.fill === "function") {
-      win.AdPlugg.fill(zoneRef.current);
-    }
+    const tryFill = () => {
+      // Re-run the AdPlugg script to scan new zones
+      const existingScript = document.getElementById("adplugg-adjs");
+      if (existingScript) {
+        existingScript.remove();
+      }
+      const script = document.createElement("script");
+      script.id = "adplugg-adjs";
+      script.async = true;
+      script.src = "//www.adplugg.com/serve/A48226912/js/1.1/ad.js";
+      document.head.appendChild(script);
+    };
+
+    // Small delay to ensure the DOM is ready
+    const timeout = setTimeout(tryFill, 100);
+    return () => clearTimeout(timeout);
   }, [zoneName]);
 
   return (
