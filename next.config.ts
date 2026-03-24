@@ -35,6 +35,10 @@ const nextConfig: NextConfig = {
 
     // Cron Secret
     CRON_SECRET: process.env.CRON_SECRET,
+
+    // Google Maps
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
   },
 };
 

@@ -2,8 +2,9 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border bg-card mt-auto">
-      <div className="container-tight py-8">
+    <div className="w-full flex justify-center flex-col mt-auto">
+      <footer className="border-t border-border bg-card">
+        <div className="container-tight py-8">
         <div className="flex flex-col gap-6">
           {/* Top Section - Logo and Navigation */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -55,7 +56,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
+      </footer>
+    </div>
   );
 };
 

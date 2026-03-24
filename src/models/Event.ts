@@ -30,6 +30,8 @@ export interface IEvent {
   paymentStatus?: "unpaid" | "paid";
   stripeSessionId?: string;
   expiredAt?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export function generateSlug(title: string): string {
@@ -128,6 +130,8 @@ const EventSchema = new Schema<IEvent>(
       default: "unpaid",
     },
     stripeSessionId: { type: String },
+    lat: { type: Number },
+    lng: { type: Number },
   },
   {
     timestamps: true,

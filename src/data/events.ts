@@ -76,6 +76,8 @@ export interface Event {
   stripeSessionId?: string;
   lastUpdated?: string;
   expiredAt?: string;
+  lat?: number;
+  lng?: number;
 }
 
 // export const events: Event[] = [

@@ -1,0 +1,30 @@
+import React from "react";
+import clsx from "clsx";
+
+interface AdPluggZoneProps {
+  zoneName: string;
+  className?: string;
+}
+
+const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
+  return (
+    <div
+      className={clsx(
+        "flex flex-col items-center justify-center w-full my-6",
+        className,
+      )}
+    >
+      <p className="text-[10px] text-muted-foreground uppercase tracking-widest text-center mb-1">
+        Advertisement
+      </p>
+      <div
+        className="adplugg-tag overflow-hidden bg-muted/20 flex items-center justify-center rounded-md"
+        data-adplugg-zone={zoneName}
+      >
+        {/* AdPlugg ad creative will be injected here */}
+      </div>
+    </div>
+  );
+};
+
+export default AdPluggZone;

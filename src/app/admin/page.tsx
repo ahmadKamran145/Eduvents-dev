@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, Clock, Plus, Star, List, Timer } from "lucide-react";
+import { Check, X, Clock, Plus, Star, List, Timer, MapPin, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +28,33 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  const handleGeocodeBackfill = async () => {
+    setIsGeocoding(true);
+    try {
+      const res = await fetch("/api/admin/geocode-backfill", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        if (data.processed === 0) {
+          toast.success("All approved events are already geocoded");
+        } else if (data.failed > 0 && data.succeeded === 0) {
+          toast.error(`Failed to geocode ${data.failed} approved event(s) — invalid locations`);
+        } else if (data.failed > 0) {
+          toast.success(`Geocoded ${data.succeeded} approved event(s), ${data.failed} failed (invalid locations)`);
+        } else {
+          toast.success(`Geocoded ${data.succeeded} approved event(s) successfully`);
+        }
+      } else {
+        toast.error(data.message || "Geocoding failed");
+      }
+    } catch {
+      toast.error("Geocoding request failed");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -166,7 +193,22 @@ const AdminDashboard = () => {
             <p className="text-muted-foreground">Manage event submissions</p>
           </div>
 
-          <Dialog open={isAddingEvent} onOpenChange={setIsAddingEvent}>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleGeocodeBackfill}
+              disabled={isGeocoding}
+            >
+              {isGeocoding ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4 mr-2" />
+              )}
+              Geocode Events
+            </Button>
+
+            <Dialog open={isAddingEvent} onOpenChange={setIsAddingEvent}>
             <DialogTrigger asChild>
               <Button size="lg">
                 <Plus className="h-5 w-5 mr-2" />
@@ -189,6 +231,7 @@ const AdminDashboard = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">

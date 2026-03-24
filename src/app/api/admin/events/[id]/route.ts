@@ -8,6 +8,7 @@ import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 
 import { sendStatusUpdateEmail } from '@/lib/email';
+import { geocodeAddress } from '@/lib/geocode';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -103,9 +104,28 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         // When switching to On Demand, $unset date/time/location/price fields so they're
         // actually removed from the document (setting to undefined is ignored by Mongoose $set)
         let unsetFields: any = {};
+        const finalFormat = updateData.format || existingEvent.format;
         if (updateData.format === 'On Demand') {
-            unsetFields = { startDate: 1, endDate: 1, startTime: 1, endTime: 1, location: 1, priceFrom: 1, priceTo: 1 };
+            unsetFields = { startDate: 1, endDate: 1, startTime: 1, endTime: 1, location: 1, priceFrom: 1, priceTo: 1, lat: 1, lng: 1 };
+            // Remove fields from $set that will be in $unset to avoid MongoDB conflict
+            for (const key of Object.keys(unsetFields)) {
+                delete updateData[key];
+            }
             updateData.isFree = true;
+        } else if (finalFormat === 'In-Person' || finalFormat === 'Hybrid') {
+            // Re-geocode if location or format changed
+            const locationChanged = updateData.location && updateData.location !== existingEvent.location;
+            const formatChanged = updateData.format && updateData.format !== existingEvent.format;
+            if (locationChanged || formatChanged) {
+                const locationToGeocode = updateData.location || existingEvent.location;
+                if (locationToGeocode) {
+                    const coords = await geocodeAddress(locationToGeocode);
+                    if (coords) {
+                        updateData.lat = coords.lat;
+                        updateData.lng = coords.lng;
+                    }
+                }
+            }
         }
 
         const mongoUpdate: any = { $set: updateData };

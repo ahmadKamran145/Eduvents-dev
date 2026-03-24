@@ -7,6 +7,7 @@ import { ArrowRight, Search, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import EventCard from "@/components/EventCard";
+import AdPluggZone from "@/components/AdPluggZone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Event } from "@/data/events";
@@ -122,6 +123,7 @@ export default function Home() {
         </div>
       </section>
 
+
       {/* Featured Events Section - Moved up */}
       <section className="py-12 bg-background">
         <div className="container-tight">
@@ -149,6 +151,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <AdPluggZone zoneName="mid_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8" />
 
       {/* Latest Events Grid */}
       <section className="py-16 bg-muted/50">
@@ -214,6 +218,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <AdPluggZone zoneName="footer_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 py-8" />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-hero">

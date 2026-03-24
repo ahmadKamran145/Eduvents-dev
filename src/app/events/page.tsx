@@ -9,10 +9,14 @@ import {
   Calendar as CalendarIcon,
   Search,
   Loader2,
+  LayoutList,
+  Map,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import EventCard from "@/components/EventCard";
+import MapView from "@/components/MapView";
 import SearchBar from "@/components/SearchBar";
+import AdPluggZone from "@/components/AdPluggZone";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -77,6 +81,7 @@ const EventsContent = () => {
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   // Debounce search
   useEffect(() => {
@@ -394,6 +399,8 @@ const EventsContent = () => {
         </div>
       </div>
 
+      <AdPluggZone zoneName="upper_banner" className="max-w-[1216px] mx-auto px-4 sm:px-6 lg:px-8 pt-6" />
+
       <div className="container-tight py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
@@ -401,6 +408,7 @@ const EventsContent = () => {
             <div className="bg-card rounded-lg p-6 shadow-card sticky top-24">
               <h2 className="font-semibold text-lg mb-4">Filters</h2>
               {renderFilterSection()}
+
             </div>
           </aside>
 
@@ -418,6 +426,32 @@ const EventsContent = () => {
               />
 
               <div className="flex gap-4">
+                {/* List / Map toggle */}
+                <div className="flex rounded-md border border-input overflow-hidden h-12">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors ${
+                      viewMode === "list"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <LayoutList className="h-4 w-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("map")}
+                    className={`flex items-center gap-1.5 px-3 text-sm font-medium transition-colors border-l border-input ${
+                      viewMode === "map"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Map className="h-4 w-4" />
+                    <span className="hidden sm:inline">Map</span>
+                  </button>
+                </div>
+
                 <Button
                   variant="outline"
                   className="lg:hidden w-[160px] h-12"
@@ -467,6 +501,8 @@ const EventsContent = () => {
                   Finding the best educational opportunities for you...
                 </p>
               </div>
+            ) : viewMode === "map" ? (
+              <MapView events={allEvents} />
             ) : paginatedEvents.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -548,6 +584,8 @@ const EventsContent = () => {
                 )}
               </div>
             )}
+            
+            <AdPluggZone zoneName="content_ad" className="mt-12" />
           </div>
         </div>
       </div>
