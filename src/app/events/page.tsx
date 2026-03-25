@@ -75,7 +75,7 @@ const EventsContent = () => {
     key: "selection",
   });
   const [sortBy, setSortBy] = useState<"newest" | "date" | "popularity">(
-    "newest",
+    "date",
   );
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
