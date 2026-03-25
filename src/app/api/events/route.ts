@@ -429,7 +429,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Sort configuration
-    let sortOption: any = { createdAt: -1 };
+    let sortOption: any = { startDate: 1, date: 1 };
     if (sort === "date") {
       sortOption = { startDate: 1, date: 1 };
     } else if (sort === "popularity") {
