@@ -430,6 +430,7 @@ const EventsContent = () => {
                 <div className="flex rounded-md border border-input overflow-hidden h-10">
                   <button
                     onClick={() => setViewMode("list")}
+                    title="List View"
                     className={`flex items-center gap-1.5 px-2.5 sm:px-3 text-sm font-medium transition-colors ${
                       viewMode === "list"
                         ? "bg-primary text-primary-foreground"
@@ -441,6 +442,7 @@ const EventsContent = () => {
                   </button>
                   <button
                     onClick={() => setViewMode("map")}
+                    title="Map View"
                     className={`flex items-center gap-1.5 px-2.5 sm:px-3 text-sm font-medium transition-colors border-l border-input ${
                       viewMode === "map"
                         ? "bg-primary text-primary-foreground"
