@@ -214,7 +214,7 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
       </div>
 
       {/* Title */}
-      <h3 className={`font-bold leading-snug text-gray-900 mb-1.5 line-clamp-2 ${isMobile ? "text-[13px]" : "text-[15px] mb-2"}`}>
+      <h3 className={`font-bold leading-snug text-gray-900 mb-1.5 line-clamp-2 break-all ${isMobile ? "text-[13px]" : "text-[15px] mb-2"}`}>
         {event.title}
       </h3>
 
@@ -222,23 +222,23 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
       {!isOnDemand && (
         <div className={`text-muted-foreground mb-2 ${isMobile ? "space-y-1 text-[11px]" : "space-y-1.5 text-[13px] mb-3"}`}>
           {formattedDate && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <Calendar className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
-              <span className="truncate">{formattedDate}</span>
+              <span className="truncate break-all">{formattedDate}</span>
             </div>
           )}
           {startTime && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <Clock className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
-              <span>
+              <span className="truncate break-all">
                 {startTime} – {endTime}
               </span>
             </div>
           )}
           {event.location && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <MapPin className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
-              <span className="line-clamp-1">{event.location}</span>
+              <span className="truncate break-all">{event.location}</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
