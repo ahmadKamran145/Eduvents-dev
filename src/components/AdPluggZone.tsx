@@ -58,7 +58,7 @@ const AdPluggZone: React.FC<AdPluggZoneProps> = ({ zoneName, className }) => {
   return (
     <div
       className={clsx(
-        "flex flex-col items-center justify-center w-full my-6",
+        "flex flex-col items-center justify-center w-full my-3",
         className,
       )}
     >

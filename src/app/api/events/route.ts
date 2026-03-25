@@ -429,16 +429,31 @@ export async function GET(req: NextRequest) {
     }
 
     // Sort configuration
-    let sortOption: any = { startDate: 1, date: 1 };
-    if (sort === "date") {
-      sortOption = { startDate: 1, date: 1 };
-    } else if (sort === "popularity") {
-      // Placeholder for popularity, if you have a views field
-      sortOption = { createdAt: -1 };
-    }
+    let events;
+    const isDateSort = !sort || sort === "date";
 
-    const eventsList = await Event.find(query).sort(sortOption);
-    const events = eventsList.map((e) => e.toJSON());
+    if (isDateSort) {
+      // Use aggregation to push On Demand events (null startDate) to the bottom
+      const eventsList = await Event.aggregate([
+        { $match: query },
+        {
+          $addFields: {
+            _sortDate: { $ifNull: ["$startDate", "9999-12-31"] },
+            id: { $toString: "$_id" },
+          },
+        },
+        { $sort: { _sortDate: 1, date: 1 } },
+        { $project: { _sortDate: 0 } },
+      ]);
+      events = eventsList;
+    } else {
+      let sortOption: any = { createdAt: -1 };
+      if (sort === "popularity") {
+        sortOption = { createdAt: -1 };
+      }
+      const eventsList = await Event.find(query).sort(sortOption);
+      events = eventsList.map((e) => e.toJSON());
+    }
 
     return NextResponse.json({ success: true, events });
   } catch (error: any) {
