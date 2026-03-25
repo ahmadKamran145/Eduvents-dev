@@ -110,14 +110,16 @@ const FeaturedCarousel = ({ events }: FeaturedCarouselProps) => {
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 mb-6 text-white/80 text-sm">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span>
-                      {event.startDate && event.endDate && event.startDate !== event.endDate
-                        ? `${safeFormatDate(event.startDate, 'MMM d, yyyy')} - ${safeFormatDate(event.endDate, 'MMM d, yyyy')}`
-                        : safeFormatDate(event.startDate || event.date, 'MMMM d, yyyy')}
-                    </span>
-                  </div>
+                  {event.format !== "On Demand" && (
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>
+                        {event.startDate && event.endDate && event.startDate !== event.endDate
+                          ? `${safeFormatDate(event.startDate, 'MMM d, yyyy')} - ${safeFormatDate(event.endDate, 'MMM d, yyyy')}`
+                          : safeFormatDate(event.startDate || event.date, 'MMMM d, yyyy')}
+                      </span>
+                    </div>
+                  )}
                   {event.location && (
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />

@@ -12,13 +12,13 @@ const UK_CENTER = { lat: 54.5, lng: -2.1 };
 const DEFAULT_ZOOM = 6;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Webinar: "#8B5CF6",
-  Podcast: "#A855F7",
-  Conference: "#3B82F6",
-  "CPD Training": "#10B981",
-  "Awards Show": "#F59E0B",
-  Festival: "#F97316",
-  Exhibition: "#EF4444",
+  Webinar: "#166fce",
+  Podcast: "#af56db",
+  Conference: "#153455",
+  "CPD Training": "#21af4e",
+  "Awards Show": "#f49e0a",
+  Festival: "#e2366f",
+  Exhibition: "#f97415",
 };
 
 const mapContainerStyle = { width: "100%", height: "600px" };
@@ -177,6 +177,7 @@ export default function MapView({ events }: MapViewProps) {
 
 function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) {
   const color = CATEGORY_COLORS[event.category] || "#3B82F6";
+  const categoryClass = getCategoryColor(event.category);
   const isOnDemand = event.format === "On Demand";
   const formattedDate =
     event.startDate && event.endDate
@@ -206,8 +207,7 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
           />
         )}
         <span
-          className={`absolute top-2 left-2 font-semibold text-white rounded-md shadow-sm ${isMobile ? "px-1.5 py-0.5 text-[9px]" : "px-2.5 py-1 text-[11px]"}`}
-          style={{ backgroundColor: color }}
+          className={`absolute top-2 left-2 font-semibold text-white rounded-full shadow-sm ${categoryClass} ${isMobile ? "px-1.5 py-0.5 text-[9px]" : "px-2.5 py-1 text-[11px]"}`}
         >
           {event.category}
         </span>
@@ -220,16 +220,16 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
 
       {/* Event details */}
       {!isOnDemand && (
-        <div className={`text-gray-500 mb-2 ${isMobile ? "space-y-1 text-[11px]" : "space-y-1.5 text-[13px] mb-3"}`}>
+        <div className={`text-muted-foreground mb-2 ${isMobile ? "space-y-1 text-[11px]" : "space-y-1.5 text-[13px] mb-3"}`}>
           {formattedDate && (
             <div className="flex items-center gap-1.5">
-              <Calendar className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
+              <Calendar className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
               <span className="truncate">{formattedDate}</span>
             </div>
           )}
           {startTime && (
             <div className="flex items-center gap-1.5">
-              <Clock className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
+              <Clock className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
               <span>
                 {startTime} – {endTime}
               </span>
@@ -237,18 +237,18 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
           )}
           {event.location && (
             <div className="flex items-center gap-1.5">
-              <MapPin className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
+              <MapPin className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
               <span className="line-clamp-1">{event.location}</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <PoundSterling className={`flex-shrink-0 ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} style={{ color }} />
+            <PoundSterling className={`flex-shrink-0 text-primary ${isMobile ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
             {event.isFree ? (
-              <span className={`bg-green-50 text-green-600 rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
+              <span className={`bg-success/10 text-success rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
                 Free
               </span>
             ) : (
-              <span className={`bg-blue-50 text-blue-600 rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
+              <span className={`bg-primary/10 text-primary rounded-full font-semibold ${isMobile ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}>
                 {event.priceFrom != null && event.priceTo != null
                   ? `£${event.priceFrom} – £${event.priceTo}`
                   : `£${event.price ?? event.priceFrom ?? event.priceTo}`}
@@ -261,8 +261,7 @@ function MapEventCard({ event, isMobile }: { event: Event; isMobile: boolean }) 
       {/* View Details button */}
       <Link href={`/event/${event.slug || event.id}`}>
         <button
-          className={`w-full rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm ${isMobile ? "text-xs py-1.5 px-3" : "text-sm py-2 px-4"}`}
-          style={{ backgroundColor: color }}
+          className={`w-full rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-sm ${categoryClass} ${isMobile ? "text-xs py-1.5 px-3" : "text-sm py-2 px-4"}`}
         >
           View Details
         </button>
