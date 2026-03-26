@@ -156,6 +156,122 @@ The EDUVENTS Team
   }
 }
 
+export async function sendOrganiserWelcomeEmail(
+  email: string,
+  name: string,
+) {
+  try {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: `Welcome to EDUVENTS!`,
+      html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+                    <h2 style="color: #0F172A; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">Welcome to EDUVENTS!</h2>
+                    <p>Hi ${name},</p>
+                    <p>Thank you for creating your organiser account on EDUVENTS. You're all set to start listing your events!</p>
+                    <p>From your dashboard, you can:</p>
+                    <ul>
+                        <li>List new events</li>
+                        <li>Track event performance (views, clicks, CTR)</li>
+                        <li>Edit your event listings</li>
+                        <li>Manage your account settings</li>
+                    </ul>
+                    <div style="margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/organiser/dashboard" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Dashboard</a>
+                    </div>
+                    <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
+                    <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+            `,
+      text: `Hi ${name},\n\nThank you for creating your organiser account on EDUVENTS. You're all set to start listing your events!\n\nBest regards,\nThe EDUVENTS Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Welcome email sent successfully: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending welcome email:", error);
+    return false;
+  }
+}
+
+export async function sendPasswordResetEmail(
+  email: string,
+  name: string,
+  resetUrl: string,
+) {
+  try {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: `Password Reset – EDUVENTS`,
+      html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+                    <h2 style="color: #0F172A; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">Password Reset Request</h2>
+                    <p>Hi ${name},</p>
+                    <p>We received a request to reset your password for your EDUVENTS account. Click the button below to set a new password:</p>
+                    <div style="margin: 30px 0;">
+                        <a href="${resetUrl}" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+                    </div>
+                    <p>This link will expire in 1 hour. If you didn't request this reset, you can safely ignore this email.</p>
+                    <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
+                    <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+            `,
+      text: `Hi ${name},\n\nWe received a request to reset your password. Visit this link to set a new password: ${resetUrl}\n\nThis link expires in 1 hour.\n\nBest regards,\nThe EDUVENTS Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent successfully: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return false;
+  }
+}
+
+export async function sendEventEditNotificationToAdmin(
+  eventTitle: string,
+  organiserName: string,
+) {
+  try {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to: process.env.ADMIN_EMAIL || "info@doceoconsulting.co.uk",
+      subject: `Event Edited – Re-Review Required – EDUVENTS`,
+      html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+                    <h2 style="color: #0F172A; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">Event Edited – Re-Review Required</h2>
+                    <p>Hi Admin,</p>
+                    <p>An approved event has been edited by its organiser and requires re-review before being republished.</p>
+                    <div style="background-color: #f8fafc; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <p><strong>Event Title:</strong> ${eventTitle}</p>
+                        <p><strong>Organiser:</strong> ${organiserName}</p>
+                    </div>
+                    <p>Please review this event in the Admin Dashboard.</p>
+                    <div style="margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Admin Dashboard</a>
+                    </div>
+                    <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
+                </div>
+            `,
+      text: `Hi Admin,\n\nAn approved event has been edited by its organiser and requires re-review before being republished.\n\nEvent Title: ${eventTitle}\nOrganiser: ${organiserName}\n\nPlease review this event in the Admin Dashboard.\n\nBest regards,\nThe EDUVENTS Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Admin edit notification sent successfully: ${info.messageId}`,
+    );
+    return true;
+  } catch (error) {
+    console.error("Error sending admin edit notification:", error);
+    return false;
+  }
+}
+
 export async function sendStatusUpdateEmail(
   organiserEmail: string,
   organiserName: string,

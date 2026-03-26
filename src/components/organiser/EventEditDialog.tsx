@@ -1,0 +1,596 @@
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AlertTriangle } from "lucide-react";
+import {
+  categories,
+  formats,
+  SubjectArea,
+  EventPhase,
+} from "@/data/events";
+import SubjectTagInput from "@/components/SubjectTagInput";
+import PhaseTagInput from "@/components/PhaseTagInput";
+import TimeInput from "@/components/TimeInput";
+import { toast } from "sonner";
+
+interface EventData {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  format: string;
+  subjectAreas: string[];
+  phases: string[];
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  organiser: string;
+  organiserEmail: string;
+  image: string;
+  bookingUrl: string;
+  isFree: boolean;
+  priceFrom?: number;
+  priceTo?: number;
+  status: string;
+  [key: string]: any;
+}
+
+interface EventEditDialogProps {
+  event: EventData;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) => {
+  const [formData, setFormData] = useState<Partial<EventData>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDragging, setIsDragging] = useState(false);
+
+  const wasApproved = event.status === "approved";
+
+  useEffect(() => {
+    // Fetch fresh event data
+    fetch(`/api/organiser/events/${event.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setFormData({ ...data.event });
+          setImagePreview(data.event.image);
+          setSelectedFile(null);
+          setErrors({});
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching event:", error);
+      });
+  }, [event.id]);
+
+  const getCharCount = (text: string) => text.replace(/\s+/g, "").length;
+  const isOnDemand = formData.format === "On Demand";
+
+  const handleChange = (field: string, value: string | boolean | number) => {
+    if (field === "description" && typeof value === "string") {
+      const newCharCount = getCharCount(value);
+      const prevCharCount = getCharCount(formData.description || "");
+      if (newCharCount > 2000 && newCharCount > prevCharCount) return;
+    }
+
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+      if (field === "startDate" && typeof value === "string") {
+        newData.endDate = value;
+      }
+      if (field === "format" && value === "On Demand") {
+        newData.startDate = "";
+        newData.endDate = "";
+        newData.startTime = "";
+        newData.endTime = "";
+        newData.location = "";
+        newData.isFree = true;
+        newData.priceFrom = undefined;
+        newData.priceTo = undefined;
+      }
+      return newData;
+    });
+
+    if (field === "format" && value === "On Demand") {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.startDate;
+        delete newErrors.endDate;
+        delete newErrors.startTime;
+        delete newErrors.endTime;
+        delete newErrors.location;
+        delete newErrors.priceFrom;
+        delete newErrors.priceTo;
+        return newErrors;
+      });
+      return;
+    }
+
+    if (field === "title" && typeof value === "string" && value.length > 100) {
+      setErrors((prev) => ({ ...prev, title: "Title length must be 100 characters or less" }));
+    } else if (field === "organiser" && typeof value === "string" && value.length > 50) {
+      setErrors((prev) => ({ ...prev, organiser: "Name must be 50 characters or less" }));
+    } else if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubjectChange = (subjects: SubjectArea[]) => {
+    setFormData((prev) => ({ ...prev, subjectAreas: subjects }));
+  };
+
+  const handlePhaseChange = (phases: EventPhase[]) => {
+    setFormData((prev) => ({ ...prev, phases }));
+  };
+
+  const resizeImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = 1200;
+          canvas.height = 675;
+          if (ctx) {
+            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+            const scaledWidth = img.width * scale;
+            const scaledHeight = img.height * scale;
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
+            ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(new File([blob], file.name, { type: file.type, lastModified: Date.now() }));
+                } else reject(new Error("Failed to resize image"));
+              },
+              file.type,
+              0.95,
+            );
+          } else reject(new Error("Failed to get canvas context"));
+        };
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageFile(file);
+  };
+
+  const handleImageFile = async (file: File) => {
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setErrors((prev) => ({ ...prev, image: "Incorrect File Format. File must be PNG or JPG." }));
+      return;
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, image: "File size too big. File size should be less than 25mb" }));
+      return;
+    }
+    try {
+      const resizedFile = await resizeImage(file);
+      setSelectedFile(resizedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setErrors((prev) => ({ ...prev, image: "" }));
+      };
+      reader.readAsDataURL(resizedFile);
+    } catch {
+      setErrors((prev) => ({ ...prev, image: "Failed to process image. Please try another image." }));
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageFile(file);
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.title?.trim()) newErrors.title = "Required";
+    else if (formData.title.length > 100) newErrors.title = "Title length must be 100 characters or less";
+
+    if (!formData.description?.trim()) newErrors.description = "Required";
+    else if (getCharCount(formData.description) > 2000) newErrors.description = "Description must be 2000 characters or less";
+
+    if (!formData.organiser?.trim()) newErrors.organiser = "Required";
+    else if (formData.organiser.length > 50) newErrors.organiser = "Name must be 50 characters or less";
+
+    if (formData.organiserEmail && !formData.organiserEmail.includes("@")) {
+      newErrors.organiserEmail = "Incorrect email format. Email must contain @";
+    }
+
+    if (formData.bookingUrl) {
+      try { new URL(formData.bookingUrl); } catch { newErrors.bookingUrl = "Incorrect URL. Please enter a valid URL."; }
+    }
+
+    if (!isOnDemand && !formData.isFree) {
+      const pFrom = formData.priceFrom as any;
+      const pTo = formData.priceTo as any;
+      if (pFrom === undefined || pFrom === null || pFrom === "") newErrors.priceFrom = "Required";
+      if (pTo !== undefined && pTo !== null && pTo !== "" && parseFloat(String(pTo)) <= 0) {
+        newErrors.priceTo = "Price To must be greater than 0";
+      }
+      if (pFrom && pTo && parseFloat(String(pTo)) < parseFloat(String(pFrom))) {
+        newErrors.priceTo = "Maximum price must be greater than or equal to minimum price";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    setIsSaving(true);
+    try {
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "subjectAreas" || key === "phases") {
+          data.append(key, JSON.stringify(value));
+        } else if (key === "image") {
+          // handled separately
+        } else if (key === "priceFrom" || key === "priceTo") {
+          const numVal = value as number | string | undefined | null;
+          data.append(key, numVal === undefined || numVal === null || numVal === "" ? "" : String(numVal));
+        } else if (value !== undefined && value !== null) {
+          const stringValue = String(value);
+          const trimmedValue =
+            key === "title" || key === "description" || key === "organiser" || key === "location"
+              ? stringValue.trim()
+              : stringValue;
+          data.append(key, trimmedValue);
+        }
+      });
+
+      if (selectedFile) data.append("image", selectedFile);
+
+      const response = await fetch(`/api/organiser/events/${event.id}`, { method: "PUT", body: data });
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(result.message || "Event updated successfully.");
+        onSuccess();
+      } else {
+        toast.error(result.message || "Failed to update event");
+      }
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast.error("Failed to update event");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Event</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 mt-4">
+          {/* Warning for approved events */}
+          {wasApproved && (
+            <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  This event is currently approved and live.
+                </p>
+                <p className="text-sm text-amber-700 mt-1">
+                  Editing this event will change its status back to Pending for admin review.
+                  It will be temporarily removed from the public marketplace until re-approved.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Event Details */}
+          <div className="bg-card rounded-lg p-3 shadow-card">
+            <h2 className="text-xl font-semibold mb-6">Event Details</h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Event Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title || ""}
+                  onChange={(e) => handleChange("title", e.target.value)}
+                  className={errors.title ? "border-destructive" : ""}
+                  maxLength={100}
+                />
+                <p className={`text-sm mt-1 ${(formData.title?.length || 0) >= 100 ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  {formData.title?.length || 0}/100 characters
+                </p>
+                {errors.title && <p className="text-sm text-destructive mt-1">{errors.title}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description || ""}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  rows={5}
+                  className={errors.description ? "border-destructive" : ""}
+                />
+                <p className={`text-sm mt-1 ${getCharCount(formData.description || "") >= 2000 ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  {getCharCount(formData.description || "")}/2000 characters
+                </p>
+                {errors.description && <p className="text-sm text-destructive mt-1">{errors.description}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Category *</Label>
+                  <Select value={formData.category} onValueChange={(v) => handleChange("category", v)}>
+                    <SelectTrigger className={errors.category ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                  {errors.category && <p className="text-sm text-destructive mt-1">{errors.category}</p>}
+                </div>
+
+                <div>
+                  <Label>Event Format *</Label>
+                  <Select value={formData.format} onValueChange={(v) => handleChange("format", v)}>
+                    <SelectTrigger className={errors.format ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Select format" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card">
+                      {formats.map((format) => (<SelectItem key={format} value={format}>{format}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                  {errors.format && <p className="text-sm text-destructive mt-1">{errors.format}</p>}
+                </div>
+              </div>
+
+              <div>
+                <Label>Subject Areas (Optional)</Label>
+                <SubjectTagInput selectedSubjects={(formData.subjectAreas || []) as SubjectArea[]} onChange={handleSubjectChange} />
+              </div>
+
+              <div>
+                <Label>Educational Phases (Optional)</Label>
+                <PhaseTagInput selectedPhases={(formData.phases || []) as EventPhase[]} onChange={handlePhaseChange} />
+              </div>
+            </div>
+          </div>
+
+          {/* Date & Time */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Date & Time</h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate">Start Date *</Label>
+                    <Input id="startDate" type="date" value={formData.startDate || ""} min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => handleChange("startDate", e.target.value)} onKeyDown={(e) => e.preventDefault()}
+                      className={errors.startDate ? "border-destructive" : ""} />
+                    {errors.startDate && <p className="text-sm text-destructive mt-1">{errors.startDate}</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="endDate">End Date *</Label>
+                    <Input id="endDate" type="date" value={formData.endDate || ""} min={formData.startDate || new Date().toISOString().split("T")[0]}
+                      onChange={(e) => handleChange("endDate", e.target.value)} onKeyDown={(e) => e.preventDefault()}
+                      className={errors.endDate ? "border-destructive" : ""} />
+                    {errors.endDate && <p className="text-sm text-destructive mt-1">{errors.endDate}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startTime">Start Time *</Label>
+                    <TimeInput value={formData.startTime || ""} onChange={(value) => handleChange("startTime", value)}
+                      className={errors.startTime ? "border-destructive" : ""} />
+                    {errors.startTime && <p className="text-sm text-destructive mt-1">{errors.startTime}</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="endTime">End Time *</Label>
+                    <TimeInput value={formData.endTime || ""} onChange={(value) => handleChange("endTime", value)}
+                      className={errors.endTime ? "border-destructive" : ""} />
+                    {errors.endTime && <p className="text-sm text-destructive mt-1">{errors.endTime}</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Location */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Location</h2>
+              <div>
+                <Label htmlFor="location">Venue or Platform *</Label>
+                <Input id="location" value={formData.location || ""} onChange={(e) => handleChange("location", e.target.value)}
+                  placeholder="Enter venue address or online platform" className={errors.location ? "border-destructive" : ""} />
+                {errors.location && <p className="text-sm text-destructive mt-1">{errors.location}</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Cost to Attend */}
+          {!isOnDemand && (
+            <div className="bg-card rounded-lg p-3 shadow-card">
+              <h2 className="text-xl font-semibold mb-6">Cost to Attend</h2>
+              <div className="space-y-4">
+                <RadioGroup value={formData.isFree ? "free" : "paid"} onValueChange={(v) => handleChange("isFree", v === "free")} className="flex gap-6">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="free" id="org-edit-free" />
+                    <Label htmlFor="org-edit-free" className="cursor-pointer">Free</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="paid" id="org-edit-paid" />
+                    <Label htmlFor="org-edit-paid" className="cursor-pointer">Paid</Label>
+                  </div>
+                </RadioGroup>
+
+                {!formData.isFree && (
+                  <div className="animate-fade-in">
+                    <Label>Ticket Price Range</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="priceFrom" className="text-sm text-muted-foreground">From *</Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                          <Input id="priceFrom" type="number" min="0" step="1" value={formData.priceFrom ?? ""}
+                            onChange={(e) => { const val = e.target.value; handleChange("priceFrom", val === "" ? "" : parseFloat(val)); }}
+                            placeholder="50" className={`pl-7 ${errors.priceFrom ? "border-destructive" : ""}`} />
+                        </div>
+                        {errors.priceFrom && <p className="text-sm text-destructive mt-1">{errors.priceFrom}</p>}
+                      </div>
+                      <div>
+                        <Label htmlFor="priceTo" className="text-sm text-muted-foreground">To (Optional)</Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                          <Input id="priceTo" type="number" min="1" step="1" value={formData.priceTo ?? ""}
+                            onChange={(e) => { const val = e.target.value; handleChange("priceTo", val === "" ? "" : parseFloat(val)); }}
+                            placeholder="150" className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`} />
+                        </div>
+                        {errors.priceTo && <p className="text-sm text-destructive mt-1">{errors.priceTo}</p>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Organiser Information */}
+          <div className="bg-card rounded-lg p-3 shadow-card">
+            <h2 className="text-xl font-semibold mb-6">Organiser Information</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="organiser">Organisation Name *</Label>
+                <Input id="organiser" value={formData.organiser || ""} onChange={(e) => handleChange("organiser", e.target.value)}
+                  className={errors.organiser ? "border-destructive" : ""} maxLength={50} />
+                <p className={`text-sm mt-1 ${(formData.organiser?.length || 0) >= 50 ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  {formData.organiser?.length || 0}/50 characters
+                </p>
+                {errors.organiser && <p className="text-sm text-destructive mt-1">{errors.organiser}</p>}
+              </div>
+              <div>
+                <Label htmlFor="organiserEmail">Contact Email *</Label>
+                <Input id="organiserEmail" type="email" value={formData.organiserEmail || ""}
+                  onChange={(e) => handleChange("organiserEmail", e.target.value)}
+                  className={errors.organiserEmail ? "border-destructive" : ""} />
+                {errors.organiserEmail && <p className="text-sm text-destructive mt-1">{errors.organiserEmail}</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Event Image */}
+          <div className="bg-card rounded-lg p-3 shadow-card">
+            <h2 className="text-xl font-semibold mb-6">Event Image *</h2>
+            <div
+              className={`border-2 border-dashed ${errors.image ? "border-destructive" : isDragging ? "border-primary bg-primary/5" : "border-border"} rounded-lg p-8 text-center hover:border-primary transition-all duration-200`}
+              onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
+            >
+              {imagePreview ? (
+                <div className="relative">
+                  <img src={imagePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                  <div className="flex gap-2 justify-center mt-4">
+                    <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById("org-change-image")?.click()}>
+                      Change Image
+                    </Button>
+                    <Button type="button" variant="destructive" size="sm" onClick={() => { setImagePreview(null); setSelectedFile(null); }}>
+                      Remove Image
+                    </Button>
+                    <Input id="org-change-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  </div>
+                </div>
+              ) : (
+                <label className="cursor-pointer">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                      <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-2">Drag and drop your image here, or click to browse</p>
+                      <p className="text-sm text-muted-foreground">PNG or JPG (max 25MB)</p>
+                    </div>
+                  </div>
+                  <Input id="org-upload-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                </label>
+              )}
+            </div>
+            {errors.image && <p className="text-sm text-destructive mt-2">{errors.image}</p>}
+          </div>
+
+          {/* Booking / Watch Link */}
+          <div className="bg-card rounded-lg p-3 shadow-card">
+            <h2 className="text-xl font-semibold mb-6">{isOnDemand ? "Watch Link" : "Booking"}</h2>
+            <div>
+              <Label htmlFor="bookingUrl">{isOnDemand ? "Watch Link *" : "External Booking Link *"}</Label>
+              <Input id="bookingUrl" type="url" value={formData.bookingUrl || ""} onChange={(e) => handleChange("bookingUrl", e.target.value)}
+                placeholder="https://your-booking-page.com" className={errors.bookingUrl ? "border-destructive" : ""} />
+              <p className="text-sm text-muted-foreground mt-1">
+                {isOnDemand ? "URL where attendees can watch the recording" : "Link where attendees can register"}
+              </p>
+              {errors.bookingUrl && <p className="text-sm text-destructive mt-1">{errors.bookingUrl}</p>}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-4">
+            <Button variant="outline" size="lg" onClick={onClose}>Cancel</Button>
+            <Button size="lg" onClick={handleSave} disabled={isSaving || Object.keys(errors).some((key) => errors[key])}>
+              {isSaving ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving...
+                </span>
+              ) : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default EventEditDialog;

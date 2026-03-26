@@ -78,6 +78,9 @@ export interface Event {
   expiredAt?: string;
   lat?: number;
   lng?: number;
+  organiserId?: string;
+  views?: number;
+  clicks?: number;
 }
 
 // export const events: Event[] = [

@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       ? parseFloat(formData.get("priceTo") as string)
       : undefined;
     const isAdmin = formData.get("isAdmin") === "true";
+    const organiserId = formData.get("organiserId") as string | null;
     const file = formData.get("image") as File;
 
     const isOnDemand = format === "On Demand";
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
       featured: false,
       isAdminCreated: isAdmin,
       paymentStatus: isAdmin ? "paid" : "unpaid",
+      ...(organiserId ? { organiserId } : {}),
     });
 
     await newEvent.save();
