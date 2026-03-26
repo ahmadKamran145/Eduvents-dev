@@ -22,6 +22,7 @@ import SubjectTagInput from "@/components/SubjectTagInput";
 import PhaseTagInput from "@/components/PhaseTagInput";
 import TimeInput from "@/components/TimeInput";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface ListEventContentProps {
   isAdminMode?: boolean;
@@ -35,6 +36,7 @@ const ListEventContent = ({
   onCancel,
 }: ListEventContentProps) => {
   const router = useRouter();
+  const { organiser, isOrganiserAuthenticated } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -64,7 +66,19 @@ const ListEventContent = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Pre-fill organiser fields when logged in
+  useEffect(() => {
+    if (isOrganiserAuthenticated && organiser && !isAdminMode) {
+      setFormData((prev) => ({
+        ...prev,
+        organiserName: organiser.organisationName || prev.organiserName,
+        organiserEmail: organiser.email || prev.organiserEmail,
+      }));
+    }
+  }, [isOrganiserAuthenticated, organiser, isAdminMode]);
+
   const isOnDemand = formData.format === "On Demand";
+  const isOrganiserPrefilled = !isAdminMode && isOrganiserAuthenticated && !!organiser;
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -490,6 +504,9 @@ const ListEventContent = ({
       data.append("organiser", formData.organiserName);
       data.append("organiserEmail", formData.organiserEmail);
       data.append("bookingUrl", formData.bookingUrl);
+      if (isOrganiserAuthenticated && organiser) {
+        data.append("organiserId", organiser.id);
+      }
       data.append("isAdmin", isAdminMode.toString());
       if (selectedFile) {
         data.append("image", selectedFile);
@@ -931,8 +948,9 @@ const ListEventContent = ({
               value={formData.organiserName}
               onChange={(e) => handleChange("organiserName", e.target.value)}
               placeholder="Your organisation"
-              className={errors.organiserName ? "border-destructive" : ""}
+              className={`${errors.organiserName ? "border-destructive" : ""} ${isOrganiserPrefilled ? "bg-gray-50" : ""}`}
               maxLength={50}
+              readOnly={isOrganiserPrefilled}
             />
             <p
               className={`text-sm mt-1 ${formData.organiserName.length >= 50 ? "text-destructive font-medium" : "text-muted-foreground"}`}
@@ -954,7 +972,8 @@ const ListEventContent = ({
               value={formData.organiserEmail}
               onChange={(e) => handleChange("organiserEmail", e.target.value)}
               placeholder="email@example.com"
-              className={errors.organiserEmail ? "border-destructive" : ""}
+              className={`${errors.organiserEmail ? "border-destructive" : ""} ${isOrganiserPrefilled ? "bg-gray-50" : ""}`}
+              readOnly={isOrganiserPrefilled}
             />
             {errors.organiserEmail && (
               <p className="text-sm text-destructive mt-1">

@@ -36,6 +36,14 @@ const nextConfig: NextConfig = {
     // Cron Secret
     CRON_SECRET: process.env.CRON_SECRET,
 
+    // JWT Secret (Organiser Auth)
+    JWT_SECRET: process.env.JWT_SECRET,
+
+    // Mailchimp
+    MAILCHIMP_API_KEY: process.env.MAILCHIMP_API_KEY,
+    MAILCHIMP_LIST_ID: process.env.MAILCHIMP_LIST_ID,
+    MAILCHIMP_SERVER_PREFIX: process.env.MAILCHIMP_SERVER_PREFIX,
+
     // Google Maps
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,

@@ -32,6 +32,9 @@ export interface IEvent {
   expiredAt?: string;
   lat?: number;
   lng?: number;
+  organiserId?: mongoose.Types.ObjectId;
+  views?: number;
+  clicks?: number;
 }
 
 export function generateSlug(title: string): string {
@@ -132,6 +135,9 @@ const EventSchema = new Schema<IEvent>(
     stripeSessionId: { type: String },
     lat: { type: Number },
     lng: { type: Number },
+    organiserId: { type: Schema.Types.ObjectId, ref: "Organiser" },
+    views: { type: Number, default: 0 },
+    clicks: { type: Number, default: 0 },
   },
   {
     timestamps: true,

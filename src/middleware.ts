@@ -13,6 +13,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url.toString(), 301);
   }
 
+  // Protect organiser dashboard and account routes
+  const { pathname } = request.nextUrl;
+  if (
+    pathname.startsWith("/organiser/dashboard") ||
+    pathname.startsWith("/organiser/account")
+  ) {
+    const token = request.cookies.get("organiser_token")?.value;
+    if (!token) {
+      const loginUrl = new URL("/organiser/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return NextResponse.next();
 }
 

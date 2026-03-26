@@ -77,6 +77,27 @@ const EventDetail = () => {
     }
   };
 
+  // Track view when event loads
+  useEffect(() => {
+    if (eventId) {
+      fetch(`/api/events/${eventId}/track`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "view" }),
+      }).catch(() => {});
+    }
+  }, [eventId]);
+
+  const handleBookingClick = () => {
+    if (eventId) {
+      fetch(`/api/events/${eventId}/track`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "click" }),
+      }).catch(() => {});
+    }
+  };
+
   useEffect(() => {
     if (slug) fetchEvent();
     if (typeof window !== "undefined") {
@@ -437,6 +458,7 @@ const EventDetail = () => {
                   href={event.bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleBookingClick}
                 >
                   <Button size="lg" className="w-full text-lg h-14">
                     {event.format === "On Demand" ? "Watch Now" : "Book Now"}
