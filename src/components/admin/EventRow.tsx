@@ -86,6 +86,26 @@ const EventRow = ({
       </div>
     </div>
 
+    {/* Analytics */}
+    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      <div className="text-center">
+        <p className="font-semibold text-foreground">{event.views ?? 0}</p>
+        <p className="text-xs">Views</p>
+      </div>
+      <div className="text-center">
+        <p className="font-semibold text-foreground">{event.clicks ?? 0}</p>
+        <p className="text-xs">Clicks</p>
+      </div>
+      <div className="text-center">
+        <p className="font-semibold text-foreground">
+          {(event.views ?? 0) > 0
+            ? `${(((event.clicks ?? 0) / (event.views ?? 1)) * 100).toFixed(1)}%`
+            : "—"}
+        </p>
+        <p className="text-xs">CTR</p>
+      </div>
+    </div>
+
     <div className="flex flex-wrap items-center gap-3">
       {/* Status Badge */}
       <div>
