@@ -40,8 +40,8 @@ function SiteUserRegisterForm() {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!name.trim()) newErrors.name = "Required";
-    else if (name.trim().length > 100)
-      newErrors.name = "Name must be 100 characters or less";
+    else if (name.trim().length > 50)
+      newErrors.name = "Name must be 50 characters or less";
     if (!email.trim()) newErrors.email = "Required";
     else if (!email.includes("@"))
       newErrors.email = "Incorrect email format. Email must contain @";
@@ -127,9 +127,12 @@ function SiteUserRegisterForm() {
                   setName(e.target.value);
                   if (errors.name) setErrors((p) => ({ ...p, name: "" }));
                 }}
-                maxLength={100}
+                maxLength={50}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
+              <p className={`text-xs mt-1 ${name.length >= 50 ? "text-red-500 font-medium" : "text-gray-400"}`}>
+                {name.length}/50 characters
+              </p>
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">{errors.name}</p>
               )}

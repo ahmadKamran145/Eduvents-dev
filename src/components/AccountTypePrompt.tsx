@@ -63,7 +63,9 @@ const AccountTypePrompt = ({
             <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3 group-hover:bg-green-100 transition-colors">
               <Calendar className="h-6 w-6 text-green-600" />
             </div>
-            <h3 className="font-medium text-gray-800 mb-1">Manage Events?</h3>
+            <h3 className="font-medium text-gray-800 mb-1">
+              Organising Events?
+            </h3>
             <p className="text-xs text-gray-500">
               List events & track performance
             </p>

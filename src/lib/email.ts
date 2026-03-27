@@ -171,9 +171,6 @@ export async function sendSiteUserWelcomeEmail(
                     <p>Hi ${name},</p>
                     <p>Welcome to EDUVENTS! Your account has been successfully created.</p>
                     <p>You can now discover and save educational events tailored to your interests.</p>
-                    <div style="margin: 30px 0;">
-                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/events" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Find Events</a>
-                    </div>
                     <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
                     <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
                     <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
@@ -199,28 +196,19 @@ export async function sendOrganiserWelcomeEmail(
     const mailOptions = {
       from: process.env.SMTP_FROM,
       to: email,
-      subject: `Welcome to EDUVENTS!`,
+      subject: `Welcome to EDUVENTS – Your Organiser Account Is Ready`,
       html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
                     <h2 style="color: #0F172A; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">Welcome to EDUVENTS!</h2>
                     <p>Hi ${name},</p>
-                    <p>Thank you for creating your organiser account on EDUVENTS. You're all set to start listing your events!</p>
-                    <p>From your dashboard, you can:</p>
-                    <ul>
-                        <li>List new events</li>
-                        <li>Track event performance (views, clicks, CTR)</li>
-                        <li>Edit your event listings</li>
-                        <li>Manage your account settings</li>
-                    </ul>
-                    <div style="margin: 30px 0;">
-                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/organiser/dashboard" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Dashboard</a>
-                    </div>
+                    <p>Welcome to EDUVENTS! Your organiser account has been successfully created.</p>
+                    <p>You can now log in to your dashboard to start listing events and tracking your performance.</p>
                     <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
                     <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
                     <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
                 </div>
             `,
-      text: `Hi ${name},\n\nThank you for creating your organiser account on EDUVENTS. You're all set to start listing your events!\n\nBest regards,\nThe EDUVENTS Team`,
+      text: `Hi ${name},\n\nWelcome to EDUVENTS! Your organiser account has been successfully created.\n\nYou can now log in to your dashboard to start listing events and tracking your performance.\n\nBest regards,\nThe EDUVENTS Team`,
     };
 
     const info = await transporter.sendMail(mailOptions);

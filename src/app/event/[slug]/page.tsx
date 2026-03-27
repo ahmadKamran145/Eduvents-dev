@@ -320,7 +320,7 @@ const EventDetail = () => {
                   Login
                 </Link>
                 <Link
-                  href="/register"
+                  href="/site-user/register"
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-6 rounded-md transition-colors text-sm"
                 >
                   Register
