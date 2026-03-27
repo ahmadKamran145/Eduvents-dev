@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import { getSiteUserFromCookie, hashPassword, comparePassword } from "@/lib/auth";
+import { syncSiteUserToMailchimp } from "@/lib/mailchimp";
 
 export async function GET() {
   try {
@@ -85,6 +86,16 @@ export async function PUT(request: Request) {
     }
 
     await siteUser.save();
+
+    // Sync updated profile to Mailchimp
+    if (name !== undefined || subjectInterests !== undefined || role !== undefined) {
+      syncSiteUserToMailchimp(
+        siteUser.email,
+        siteUser.name,
+        siteUser.subjectInterests,
+        siteUser.role,
+      ).catch((err) => console.error("Mailchimp sync error:", err));
+    }
 
     return NextResponse.json({
       success: true,

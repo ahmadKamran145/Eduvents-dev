@@ -6,6 +6,7 @@ import {
   hashPassword,
   comparePassword,
 } from "@/lib/auth";
+import { syncOrganiserToMailchimp } from "@/lib/mailchimp";
 
 export async function GET() {
   try {
@@ -101,6 +102,15 @@ export async function PUT(request: Request) {
     }
 
     await organiser.save();
+
+    // Sync updated profile to Mailchimp
+    if (name !== undefined || organisationName !== undefined) {
+      syncOrganiserToMailchimp(
+        organiser.email,
+        organiser.name,
+        organiser.organisationName,
+      ).catch((err) => console.error("Mailchimp sync error:", err));
+    }
 
     return NextResponse.json({
       success: true,
