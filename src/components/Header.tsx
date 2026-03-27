@@ -121,13 +121,6 @@ const Header = () => {
                       My Dashboard
                     </Link>
                     <Link
-                      href="/organiser/dashboard"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      My Events
-                    </Link>
-                    <Link
                       href="/organiser/account"
                       onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
