@@ -156,6 +156,41 @@ The EDUVENTS Team
   }
 }
 
+export async function sendSiteUserWelcomeEmail(
+  email: string,
+  name: string,
+) {
+  try {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: `Welcome to EDUVENTS – Your Account Is Ready`,
+      html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+                    <h2 style="color: #0F172A; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">Welcome to EDUVENTS!</h2>
+                    <p>Hi ${name},</p>
+                    <p>Welcome to EDUVENTS! Your account has been successfully created.</p>
+                    <p>You can now discover and save educational events tailored to your interests.</p>
+                    <div style="margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/events" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Find Events</a>
+                    </div>
+                    <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
+                    <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #64748b;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+            `,
+      text: `Hi ${name},\n\nWelcome to EDUVENTS! Your account has been successfully created.\n\nYou can now discover and save educational events tailored to your interests.\n\nBest regards,\nThe EDUVENTS Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Site user welcome email sent: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error("Error sending site user welcome email:", error);
+    return false;
+  }
+}
+
 export async function sendOrganiserWelcomeEmail(
   email: string,
   name: string,

@@ -16,6 +16,7 @@ import {
   Link2,
   PoundSterling,
   GraduationCap,
+  Heart,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import CategoryBadge from "@/components/CategoryBadge";
@@ -40,7 +41,7 @@ import EventEditDialog from "@/components/admin/EventEditDialog";
 
 const EventDetail = () => {
   const params = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isOrganiserAuthenticated, isSiteUserAuthenticated, siteUserFavourites, toggleFavourite, addBookedEvent } = useAuth();
   const router = useRouter();
   const slug = params?.slug as string;
 
@@ -88,6 +89,8 @@ const EventDetail = () => {
     }
   }, [eventId]);
 
+  const isFavourited = eventId ? siteUserFavourites.includes(eventId) : false;
+
   const handleBookingClick = () => {
     if (eventId) {
       fetch(`/api/events/${eventId}/track`, {
@@ -95,6 +98,20 @@ const EventDetail = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "click" }),
       }).catch(() => {});
+      // Track booked event for site users
+      if (isSiteUserAuthenticated) {
+        addBookedEvent(eventId);
+      }
+    }
+  };
+
+  const handleFavouriteClick = async () => {
+    if (!isSiteUserAuthenticated) {
+      router.push(`/register?redirect=${encodeURIComponent(`/event/${slug}`)}`);
+      return;
+    }
+    if (eventId) {
+      await toggleFavourite(eventId);
     }
   };
 
@@ -280,7 +297,37 @@ const EventDetail = () => {
         </div>
       </div>
 
-      <div className="container-tight py-8 md:py-12">
+      {/* Login/Signup prompt for logged-out users */}
+      {!isAuthenticated && !isOrganiserAuthenticated && !isSiteUserAuthenticated && (
+        <div className="container-tight relative">
+          <div className="absolute inset-0 z-20 flex items-start justify-center pt-24">
+            <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-8 text-center max-w-md mx-4">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Login or Sign Up to View
+              </h2>
+              <p className="text-gray-500 text-sm mb-6">
+                Create a free account to view event details, save favourites, and track your bookings.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href="/login"
+                  className="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-md transition-colors text-sm"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-6 rounded-md transition-colors text-sm"
+                >
+                  Register
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`container-tight py-8 md:py-12 ${!isAuthenticated && !isOrganiserAuthenticated && !isSiteUserAuthenticated ? "blur-sm pointer-events-none select-none" : ""}`}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
@@ -318,6 +365,14 @@ const EventDetail = () => {
               <h1 className="text-3xl md:text-4xl font-bold text-foreground break-words flex-1 min-w-0">
                 {event.title}
               </h1>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={handleFavouriteClick}
+                  className={`p-2 rounded-full border transition-colors ${isFavourited ? "border-red-200 bg-red-50" : "border-gray-200 hover:bg-gray-50"}`}
+                  aria-label={isFavourited ? "Remove from favourites" : "Add to favourites"}
+                >
+                  <Heart className={`h-5 w-5 ${isFavourited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
+                </button>
               {isAuthenticated && (
                 <Button
                   onClick={() => setIsEditing(true)}
@@ -327,6 +382,7 @@ const EventDetail = () => {
                   Edit Event
                 </Button>
               )}
+              </div>
             </div>
 
             {event.format !== "On Demand" && (

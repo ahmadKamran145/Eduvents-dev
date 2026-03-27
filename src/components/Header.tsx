@@ -18,9 +18,11 @@ const Header = () => {
     isOrganiserAuthenticated,
     organiser,
     organiserLogout,
+    isSiteUserAuthenticated,
+    siteUser,
+    siteUserLogout,
   } = useAuth();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -34,7 +36,7 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const navLinks = [
+  const allNavLinks = [
     { path: "/", label: "Home" },
     { path: "/events", label: "Find Events" },
     { path: "/list-event", label: "List Your Event" },
@@ -42,7 +44,18 @@ const Header = () => {
     { path: "/contact", label: "Contact Us" },
   ];
 
+  // Hide "List Your Event" for site users
+  const navLinks = isSiteUserAuthenticated
+    ? allNavLinks.filter((link) => link.path !== "/list-event")
+    : allNavLinks;
+
   const isActive = (path: string) => pathname === path;
+
+  const activeUserName = isOrganiserAuthenticated
+    ? organiser?.name
+    : isSiteUserAuthenticated
+      ? siteUser?.name
+      : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -62,7 +75,7 @@ const Header = () => {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`text-base font-medium transition-colors hover:text-primary font-league-gothic  tracking-wide ${
+                className={`text-base font-medium transition-colors hover:text-primary font-league-gothic tracking-wide ${
                   isActive(link.path)
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -72,15 +85,17 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Admin logged in (only show if not also organiser-authenticated) */}
-            {isAdminAuthenticated && !isOrganiserAuthenticated && (
-              <button
-                onClick={adminLogout}
-                className="text-base font-medium text-red-500 hover:text-red-600 transition-colors font-league-gothic  tracking-wide"
-              >
-                Logout
-              </button>
-            )}
+            {/* Admin logged in */}
+            {isAdminAuthenticated &&
+              !isOrganiserAuthenticated &&
+              !isSiteUserAuthenticated && (
+                <button
+                  onClick={adminLogout}
+                  className="text-base font-medium text-red-500 hover:text-red-600 transition-colors font-league-gothic tracking-wide"
+                >
+                  Logout
+                </button>
+              )}
 
             {/* Organiser logged in - Account dropdown */}
             {isOrganiserAuthenticated && organiser && (
@@ -134,23 +149,77 @@ const Header = () => {
               </div>
             )}
 
-            {/* Not logged in - Show Register & Login */}
-            {!isOrganiserAuthenticated && !isAdminAuthenticated && (
-              <>
-                <Link
-                  href="/organiser/register"
-                  className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
+            {/* Site User logged in - Account dropdown */}
+            {isSiteUserAuthenticated && siteUser && !isOrganiserAuthenticated && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
                 >
-                  Register
-                </Link>
-                <Link
-                  href="/organiser/login"
-                  className="text-base font-medium bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors font-league-gothic tracking-wide"
-                >
-                  Login
-                </Link>
-              </>
+                  <User className="h-4 w-4" />
+                  {siteUser.name}
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                    <Link
+                      href="/site-user/favourites"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      My Favourites
+                    </Link>
+                    <Link
+                      href="/site-user/booked-events"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      My Booked Events
+                    </Link>
+                    <Link
+                      href="/site-user/account"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Account Settings
+                    </Link>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        siteUserLogout();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
+
+            {/* Not logged in - Show Register & Login */}
+            {!isOrganiserAuthenticated &&
+              !isSiteUserAuthenticated &&
+              !isAdminAuthenticated && (
+                <>
+                  <Link
+                    href="/register"
+                    className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
+                  >
+                    Register
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="text-base font-medium bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors font-league-gothic tracking-wide"
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -186,85 +255,90 @@ const Header = () => {
                 </Link>
               ))}
 
-              {/* Admin logged in - mobile */}
-              {isAdminAuthenticated && !isOrganiserAuthenticated && (
-                <button
-                  onClick={() => {
-                    adminLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
-                >
-                  Logout
-                </button>
-              )}
-
-              {/* Organiser logged in - mobile */}
-              {isOrganiserAuthenticated &&
-                organiser && (
-                  <>
-                    <div className="border-t border-border pt-4">
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Signed in as{" "}
-                        <span className="font-medium text-foreground">
-                          {organiser.name}
-                        </span>
-                      </p>
-                      <Link
-                        href="/organiser/dashboard"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
-                      >
-                        My Dashboard
-                      </Link>
-                      <Link
-                        href="/organiser/dashboard"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
-                      >
-                        My Events
-                      </Link>
-                      <Link
-                        href="/organiser/account"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
-                      >
-                        Account Settings
-                      </Link>
-                      <button
-                        onClick={() => {
-                          organiserLogout();
-                          setIsMenuOpen(false);
-                        }}
-                        className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </>
+              {/* Admin - mobile */}
+              {isAdminAuthenticated &&
+                !isOrganiserAuthenticated &&
+                !isSiteUserAuthenticated && (
+                  <button
+                    onClick={() => {
+                      adminLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
+                  >
+                    Logout
+                  </button>
                 )}
 
+              {/* Organiser - mobile */}
+              {isOrganiserAuthenticated && organiser && (
+                <div className="border-t border-border pt-4">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Signed in as{" "}
+                    <span className="font-medium text-foreground">
+                      {organiser.name}
+                    </span>
+                  </p>
+                  <Link href="/organiser/dashboard" onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                    My Dashboard
+                  </Link>
+                  <Link href="/organiser/account" onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                    Account Settings
+                  </Link>
+                  <button
+                    onClick={() => { organiserLogout(); setIsMenuOpen(false); }}
+                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide">
+                    Logout
+                  </button>
+                </div>
+              )}
+
+              {/* Site User - mobile */}
+              {isSiteUserAuthenticated && siteUser && !isOrganiserAuthenticated && (
+                <div className="border-t border-border pt-4">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Signed in as{" "}
+                    <span className="font-medium text-foreground">
+                      {siteUser.name}
+                    </span>
+                  </p>
+                  <Link href="/site-user/favourites" onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                    My Favourites
+                  </Link>
+                  <Link href="/site-user/booked-events" onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                    My Booked Events
+                  </Link>
+                  <Link href="/site-user/account" onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                    Account Settings
+                  </Link>
+                  <button
+                    onClick={() => { siteUserLogout(); setIsMenuOpen(false); }}
+                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide">
+                    Logout
+                  </button>
+                </div>
+              )}
+
               {/* Not logged in - mobile */}
-              {!isOrganiserAuthenticated && !isAdminAuthenticated && (
-                <>
+              {!isOrganiserAuthenticated &&
+                !isSiteUserAuthenticated &&
+                !isAdminAuthenticated && (
                   <div className="border-t border-border pt-4 flex flex-col space-y-3">
-                    <Link
-                      href="/organiser/register"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide"
-                    >
+                    <Link href="/register" onClick={() => setIsMenuOpen(false)}
+                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide">
                       Register
                     </Link>
-                    <Link
-                      href="/organiser/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-base font-medium text-primary hover:text-primary/80 transition-colors font-league-gothic uppercase tracking-wide"
-                    >
+                    <Link href="/login" onClick={() => setIsMenuOpen(false)}
+                      className="text-base font-medium text-primary hover:text-primary/80 transition-colors font-league-gothic uppercase tracking-wide">
                       Login
                     </Link>
                   </div>
-                </>
-              )}
+                )}
             </div>
           </nav>
         )}
