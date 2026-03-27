@@ -84,3 +84,81 @@ export async function syncOrganiserToMailchimp(
     return false;
   }
 }
+
+export async function syncSiteUserToMailchimp(
+  email: string,
+  name: string,
+  subjectInterests: string[],
+  role: string,
+) {
+  if (!MAILCHIMP_API_KEY || !MAILCHIMP_LIST_ID || !MAILCHIMP_SERVER_PREFIX) {
+    console.warn("Mailchimp credentials not configured. Skipping sync.");
+    return false;
+  }
+
+  try {
+    const url = `https://${MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0/lists/${MAILCHIMP_LIST_ID}/members`;
+
+    const nameParts = name.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `apikey ${MAILCHIMP_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email_address: email,
+        status: "subscribed",
+        merge_fields: {
+          FNAME: firstName,
+          LNAME: lastName,
+        },
+        tags: ["Site User"],
+      }),
+    });
+
+    if (response.status === 400) {
+      const crypto = await import("crypto");
+      const subscriberHash = crypto
+        .createHash("md5")
+        .update(email.toLowerCase())
+        .digest("hex");
+      const updateUrl = `https://${MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0/lists/${MAILCHIMP_LIST_ID}/members/${subscriberHash}`;
+
+      await fetch(updateUrl, {
+        method: "PATCH",
+        headers: {
+          Authorization: `apikey ${MAILCHIMP_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          merge_fields: {
+            FNAME: firstName,
+            LNAME: lastName,
+          },
+        }),
+      });
+
+      const tagUrl = `https://${MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0/lists/${MAILCHIMP_LIST_ID}/members/${subscriberHash}/tags`;
+      await fetch(tagUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `apikey ${MAILCHIMP_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tags: [{ name: "Site User", status: "active" }],
+        }),
+      });
+    }
+
+    console.log(`Mailchimp site user sync completed for ${email}`);
+    return true;
+  } catch (error) {
+    console.error("Mailchimp site user sync error:", error);
+    return false;
+  }
+}

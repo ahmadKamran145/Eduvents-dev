@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { cache } from "react";
 import dbConnect from "@/lib/mongodb";
 import Event from "@/models/Event";
-import Script from "next/script";
 
 // Revalidate every hour so JSON-LD stays fresh without hitting DB on every request
 export const revalidate = 3600;
@@ -163,11 +162,9 @@ export default async function EventLayout({ children, params }: LayoutProps) {
   return (
     <>
       {jsonLd && (
-        <Script
-          id="event-jsonld"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          strategy="beforeInteractive"
         />
       )}
       {children}
