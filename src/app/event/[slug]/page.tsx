@@ -78,14 +78,18 @@ const EventDetail = () => {
     }
   };
 
-  // Track view when event loads
+  // Track view when event loads (one view per session per event)
   useEffect(() => {
     if (eventId) {
-      fetch(`/api/events/${eventId}/track`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "view" }),
-      }).catch(() => {});
+      const key = `viewed_${eventId}`;
+      if (!sessionStorage.getItem(key)) {
+        fetch(`/api/events/${eventId}/track`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "view" }),
+        }).catch(() => {});
+        sessionStorage.setItem(key, "1");
+      }
     }
   }, [eventId]);
 
