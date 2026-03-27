@@ -46,6 +46,7 @@ const EventEditDialog = ({
 }: EventEditDialogProps) => {
   const [formData, setFormData] = useState<Partial<Event>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -53,6 +54,7 @@ const EventEditDialog = ({
 
   useEffect(() => {
     if (isOpen && event?.id) {
+      setIsLoadingData(true);
       // Fetch fresh event data when dialog opens
       fetch(`/api/admin/events/${event.id}`)
         .then((res) => res.json())
@@ -66,7 +68,8 @@ const EventEditDialog = ({
         })
         .catch((error) => {
           console.error("Error fetching event:", error);
-        });
+        })
+        .finally(() => setIsLoadingData(false));
     }
   }, [isOpen, event?.id]);
 
@@ -426,6 +429,11 @@ const EventEditDialog = ({
           <DialogTitle>Edit Event</DialogTitle>
         </DialogHeader>
 
+        {isLoadingData ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          </div>
+        ) : (
         <div className="space-y-6 mt-4">
           {/* Featured Toggle */}
           <div className="bg-card rounded-lg p-3 shadow-card">
@@ -980,6 +988,7 @@ const EventEditDialog = ({
             </Button>
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
