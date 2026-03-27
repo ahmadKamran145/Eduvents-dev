@@ -215,6 +215,7 @@ export async function PUT(
       sendEventEditNotificationToAdmin(
         updatedEvent!.title,
         organiser.name,
+        organiser.organisationName,
       ).catch((err) =>
         console.error("Admin edit notification error:", err),
       );

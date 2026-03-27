@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,7 @@ interface EventEditDialogProps {
 const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) => {
   const [formData, setFormData] = useState<Partial<EventData>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,6 +72,7 @@ const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) =>
   const wasApproved = event.status === "approved";
 
   useEffect(() => {
+    setIsLoadingData(true);
     // Fetch fresh event data
     fetch(`/api/organiser/events/${event.id}`)
       .then((res) => res.json())
@@ -83,7 +86,8 @@ const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) =>
       })
       .catch((error) => {
         console.error("Error fetching event:", error);
-      });
+      })
+      .finally(() => setIsLoadingData(false));
   }, [event.id]);
 
   const getCharCount = (text: string) => text.replace(/\s+/g, "").length;
@@ -303,8 +307,14 @@ const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) =>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Event</DialogTitle>
+          <DialogDescription>Update your event details below.</DialogDescription>
         </DialogHeader>
 
+        {isLoadingData ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          </div>
+        ) : (
         <div className="space-y-6 mt-4">
           {/* Warning for approved events */}
           {wasApproved && (
@@ -588,6 +598,7 @@ const EventEditDialog = ({ event, onClose, onSuccess }: EventEditDialogProps) =>
             </Button>
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
