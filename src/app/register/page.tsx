@@ -69,7 +69,7 @@ export default function RegisterPage() {
               <Calendar className="h-8 w-8 text-green-600" />
             </div>
             <h2 className="text-lg font-semibold text-gray-800 mb-2">
-              Manage Events?
+              Organising Events?
             </h2>
             <p className="text-sm text-gray-500">
               List events, manage listings, and track performance

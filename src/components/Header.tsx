@@ -105,7 +105,7 @@ const Header = () => {
                   className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
                 >
                   <User className="h-4 w-4" />
-                  {organiser.name}
+                  {organiser.name.length > 20 ? organiser.name.slice(0, 20) + "..." : organiser.name}
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
@@ -150,7 +150,7 @@ const Header = () => {
                   className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
                 >
                   <User className="h-4 w-4" />
-                  {siteUser.name}
+                  {siteUser.name.length > 20 ? siteUser.name.slice(0, 20) + "..." : siteUser.name}
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
@@ -269,7 +269,7 @@ const Header = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Signed in as{" "}
                     <span className="font-medium text-foreground">
-                      {organiser.name}
+                      {organiser.name.length > 20 ? organiser.name.slice(0, 20) + "..." : organiser.name}
                     </span>
                   </p>
                   <Link href="/organiser/dashboard" onClick={() => setIsMenuOpen(false)}
@@ -294,7 +294,7 @@ const Header = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Signed in as{" "}
                     <span className="font-medium text-foreground">
-                      {siteUser.name}
+                      {siteUser.name.length > 20 ? siteUser.name.slice(0, 20) + "..." : siteUser.name}
                     </span>
                   </p>
                   <Link href="/site-user/favourites" onClick={() => setIsMenuOpen(false)}

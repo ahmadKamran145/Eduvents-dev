@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { Event, getCategoryColor } from '@/data/events';
 import { Button } from '@/components/ui/button';
 import { safeFormatDate } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 interface FeaturedCarouselProps {
   events: Event[];
 }
 
 const FeaturedCarousel = ({ events }: FeaturedCarouselProps) => {
+  const { isAdminAuthenticated, isOrganiserAuthenticated, isSiteUserAuthenticated } = useAuth();
+  const isLoggedIn = isAdminAuthenticated || isOrganiserAuthenticated || isSiteUserAuthenticated;
   // Add cloned slides for infinite effect
   const slides = events.length > 1
     ? [events[events.length - 1], ...events, events[0]]
@@ -120,7 +123,7 @@ const FeaturedCarousel = ({ events }: FeaturedCarouselProps) => {
                       </span>
                     </div>
                   )}
-                  {event.location && (
+                  {isLoggedIn && event.location && (
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
                       <span className="truncate max-w-[200px]">{event.location}</span>

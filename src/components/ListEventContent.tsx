@@ -600,8 +600,8 @@ const ListEventContent = ({
                     isFree: "free",
                     priceFrom: "",
                     priceTo: "",
-                    organiserName: "",
-                    organiserEmail: "",
+                    organiserName: isOrganiserPrefilled && organiser ? organiser.organisationName : "",
+                    organiserEmail: isOrganiserPrefilled && organiser ? organiser.email : "",
                     bookingUrl: "",
                   });
                   setImagePreview(null);
