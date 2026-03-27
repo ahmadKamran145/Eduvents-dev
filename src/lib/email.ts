@@ -259,6 +259,7 @@ export async function sendPasswordResetEmail(
 export async function sendEventEditNotificationToAdmin(
   eventTitle: string,
   organiserName: string,
+  organisationName?: string,
 ) {
   try {
     const mailOptions = {
@@ -269,19 +270,17 @@ export async function sendEventEditNotificationToAdmin(
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
                     <h2 style="color: #0F172A; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">Event Edited – Re-Review Required</h2>
                     <p>Hi Admin,</p>
-                    <p>An approved event has been edited by its organiser and requires re-review before being republished.</p>
+                    <p>An approved event has been edited by its organiser and requires re-review before being republished to the marketplace.</p>
                     <div style="background-color: #f8fafc; padding: 15px; border-radius: 5px; margin: 20px 0;">
                         <p><strong>Event Title:</strong> ${eventTitle}</p>
                         <p><strong>Organiser:</strong> ${organiserName}</p>
+                        ${organisationName ? `<p><strong>Organisation:</strong> ${organisationName}</p>` : ""}
                     </div>
-                    <p>Please review this event in the Admin Dashboard.</p>
-                    <div style="margin: 30px 0;">
-                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin" style="background-color: #0F172A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Admin Dashboard</a>
-                    </div>
+                    <p>Please log in to the Admin Dashboard to review and approve or reject this event.</p>
                     <p>Best regards,<br><strong>The EDUVENTS Team</strong></p>
                 </div>
             `,
-      text: `Hi Admin,\n\nAn approved event has been edited by its organiser and requires re-review before being republished.\n\nEvent Title: ${eventTitle}\nOrganiser: ${organiserName}\n\nPlease review this event in the Admin Dashboard.\n\nBest regards,\nThe EDUVENTS Team`,
+      text: `Hi Admin,\n\nAn approved event has been edited by its organiser and requires re-review before being republished to the marketplace.\n\nEvent Title: ${eventTitle}\nOrganiser: ${organiserName}${organisationName ? `\nOrganisation: ${organisationName}` : ""}\n\nPlease log in to the Admin Dashboard to review and approve or reject this event.\n\nBest regards,\nThe EDUVENTS Team`,
     };
 
     const info = await transporter.sendMail(mailOptions);
