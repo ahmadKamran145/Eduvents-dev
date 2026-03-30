@@ -53,8 +53,9 @@ export default function SiteUserAccountPage() {
     setProfileErrors({});
     const errors: Record<string, string> = {};
     if (!name.trim()) errors.name = "Required";
-    else if (name.trim().length > 100)
-      errors.name = "Name must be 100 characters or less";
+    else if (name.trim().length > 50)
+      errors.name = "Name must be 50 characters or less";
+    if (!role) errors.role = "Please select a role";
 
     if (Object.keys(errors).length > 0) {
       setProfileErrors(errors);
@@ -141,7 +142,10 @@ export default function SiteUserAccountPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input type="text" value={name} onChange={(e) => { setName(e.target.value); if (profileErrors.name) setProfileErrors((p) => ({ ...p, name: "" })); }}
-                maxLength={100} className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                maxLength={50} className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+              <p className={`text-xs mt-1 ${name.length >= 50 ? "text-red-500 font-medium" : "text-gray-400"}`}>
+                {name.length}/50 characters
+              </p>
               {profileErrors.name && <p className="text-red-500 text-xs mt-1">{profileErrors.name}</p>}
             </div>
 
@@ -169,6 +173,7 @@ export default function SiteUserAccountPage() {
                   <span className="text-sm text-gray-700">Other</span>
                 </label>
               </div>
+              {profileErrors.role && <p className="text-red-500 text-xs mt-1">{profileErrors.role}</p>}
             </div>
 
             <button type="submit" disabled={isSavingProfile}
