@@ -314,13 +314,13 @@ const EventDetail = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
-                  href="/login"
+                  href={`/login?redirect=/event/${params.slug}`}
                   className="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-md transition-colors text-sm"
                 >
                   Login
                 </Link>
                 <Link
-                  href="/site-user/register"
+                  href={`/site-user/register?redirect=/event/${params.slug}`}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-6 rounded-md transition-colors text-sm"
                 >
                   Register

@@ -38,6 +38,8 @@ export async function GET() {
       isFree: event.isFree,
       priceFrom: event.priceFrom,
       priceTo: event.priceTo,
+      price: event.price,
+      phases: event.phases,
       status: event.status,
       organiser: event.organiser,
     }));
