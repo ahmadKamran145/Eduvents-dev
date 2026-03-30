@@ -1,7 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -18,6 +23,14 @@ export const metadata: Metadata = {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
     apple: "/favicon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    siteName: "EDUVENTS",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
@@ -54,6 +67,19 @@ export default function RootLayout({
             }('A48226912'));
           `}
         </Script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "EDUVENTS",
+              description: "The Home of Trusted Education Events",
+              url: "https://eduvents.co.uk",
+              logo: "https://eduvents.co.uk/logo.png",
+            }),
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>
