@@ -250,7 +250,7 @@ function SiteUserRegisterForm() {
             <p className="text-center text-sm text-gray-500">
               Already have an account?{" "}
               <Link
-                href="/login"
+                href={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
                 className="text-primary hover:underline font-medium"
               >
                 Login

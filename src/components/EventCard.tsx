@@ -48,41 +48,45 @@ const EventCard = ({ event }: EventCardProps) => {
   };
 
   return (
-    <div className="group bg-card rounded-lg overflow-hidden border border-transparent hover:border-primary/20 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
+    <div className="group bg-card rounded-lg overflow-hidden border border-transparent hover:border-primary/20 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 h-fit">
       <div className="aspect-video relative overflow-hidden">
         <img
           src={event.image}
           alt={event.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <span
-          className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-primary-foreground rounded-full ${getCategoryColor(event.category)}`}
-        >
-          {event.category}
-        </span>
-        {isOnDemand && (
-          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full">
-            On Demand
+        <div className="absolute top-3 left-3 flex items-center gap-2">
+          <span
+            className={`px-3 py-1 text-xs font-semibold text-primary-foreground rounded-full ${getCategoryColor(event.category)}`}
+          >
+            {event.category}
           </span>
-        )}
-        {/* Favourite Heart */}
-        <button
-          onClick={handleFavouriteClick}
-          className={`absolute ${isOnDemand ? "top-10 right-3" : "top-3 right-3"} p-1.5 rounded-full transition-colors ${
-            isFavourited
-              ? "bg-white/90 hover:bg-white"
-              : "bg-black/30 hover:bg-black/50"
-          }`}
-          aria-label={isFavourited ? "Remove from favourites" : "Add to favourites"}
-        >
-          <Heart
-            className={`h-4 w-4 ${
+          {isOnDemand && (
+            <span className="px-3 py-1 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full">
+              On Demand
+            </span>
+          )}
+        </div>
+        {/* Favourite Heart - only for site users */}
+        {isSiteUserAuthenticated && (
+          <button
+            onClick={handleFavouriteClick}
+            className={`absolute top-3 right-3 p-1.5 rounded-full transition-colors ${
               isFavourited
-                ? "text-red-500 fill-red-500"
-                : "text-white"
+                ? "bg-white/90 hover:bg-white"
+                : "bg-black/30 hover:bg-black/50"
             }`}
-          />
-        </button>
+            aria-label={isFavourited ? "Remove from favourites" : "Add to favourites"}
+          >
+            <Heart
+              className={`h-4 w-4 ${
+                isFavourited
+                  ? "text-red-500 fill-red-500"
+                  : "text-white"
+              }`}
+            />
+          </button>
+        )}
       </div>
 
       <div className="p-5">
@@ -96,7 +100,7 @@ const EventCard = ({ event }: EventCardProps) => {
           {event.description}
         </p>
 
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2">
           {!isOnDemand && (
             <>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -140,7 +144,7 @@ const EventCard = ({ event }: EventCardProps) => {
         </div>
 
         {event.phases && event.phases.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="flex flex-wrap gap-1 mt-3">
             {event.phases.slice(0, 2).map((phase) => (
               <span
                 key={phase}
@@ -157,7 +161,7 @@ const EventCard = ({ event }: EventCardProps) => {
           </div>
         )}
 
-        <Link href={`/event/${event.slug || event.id}`}>
+        <Link href={`/event/${event.slug || event.id}`} className="mt-4 block">
           <Button
             variant="outline"
             className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"

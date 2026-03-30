@@ -1,22 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { Users, Calendar } from "lucide-react";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { isOrganiserAuthenticated, isSiteUserAuthenticated, isLoading } =
     useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
 
   useEffect(() => {
     if (!isLoading) {
       if (isOrganiserAuthenticated) router.push("/organiser/dashboard");
-      else if (isSiteUserAuthenticated) router.push("/events");
+      else if (isSiteUserAuthenticated) router.push(redirect || "/events");
     }
-  }, [isOrganiserAuthenticated, isSiteUserAuthenticated, isLoading, router]);
+  }, [isOrganiserAuthenticated, isSiteUserAuthenticated, isLoading, router, redirect]);
 
   if (isLoading) {
     return (
@@ -46,7 +48,7 @@ export default function RegisterPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Attending Events */}
           <Link
-            href="/site-user/register"
+            href={redirect ? `/site-user/register?redirect=${encodeURIComponent(redirect)}` : "/site-user/register"}
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:border-primary hover:shadow-md transition-all group text-center"
           >
             <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors">
@@ -80,7 +82,7 @@ export default function RegisterPage() {
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
           <Link
-            href="/login"
+            href={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
             className="text-primary hover:underline font-medium"
           >
             Login
@@ -110,5 +112,19 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }

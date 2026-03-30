@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,12 +22,14 @@ export default function LoginPage() {
     isLoading,
   } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
 
   useEffect(() => {
     if (!isLoading) {
       if (isAdminAuthenticated) router.push("/admin");
       else if (isOrganiserAuthenticated) router.push("/organiser/dashboard");
-      else if (isSiteUserAuthenticated) router.push("/events");
+      else if (isSiteUserAuthenticated) router.push(redirect || "/events");
     }
   }, [
     isAdminAuthenticated,
@@ -35,6 +37,7 @@ export default function LoginPage() {
     isSiteUserAuthenticated,
     isLoading,
     router,
+    redirect,
   ]);
 
   if (
@@ -72,7 +75,7 @@ export default function LoginPage() {
         if (result.role === "admin") router.push("/admin");
         else if (result.role === "organiser")
           router.push("/organiser/dashboard");
-        else if (result.role === "siteuser") router.push("/events");
+        else if (result.role === "siteuser") router.push(redirect || "/events");
       } else {
         if (result.errors) {
           if (result.errors.email) setEmailError(result.errors.email);
@@ -195,7 +198,7 @@ export default function LoginPage() {
             <p className="text-center text-sm text-gray-500 mt-4">
               Don&apos;t have an account?{" "}
               <Link
-                href="/register"
+                href={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"}
                 className="text-primary hover:underline font-medium"
               >
                 Register
@@ -227,5 +230,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -34,6 +34,11 @@ export async function GET() {
       location: event.location,
       image: event.image,
       bookingUrl: event.bookingUrl,
+      isFree: event.isFree,
+      priceFrom: event.priceFrom,
+      priceTo: event.priceTo,
+      price: event.price,
+      phases: event.phases,
       status: event.status,
       organiser: event.organiser,
     }));

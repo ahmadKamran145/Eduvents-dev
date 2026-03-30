@@ -7,24 +7,13 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { toast } from "sonner";
-import { safeFormatDate } from "@/lib/utils";
-
-interface BookedEvent {
-  id: string;
-  title: string;
-  slug: string;
-  format: string;
-  startDate: string;
-  endDate: string;
-  image: string;
-  bookingUrl: string;
-  status: string;
-}
+import EventCard from "@/components/EventCard";
+import { Event } from "@/data/events";
 
 export default function BookedEventsPage() {
   const { isSiteUserAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  const [bookedEvents, setBookedEvents] = useState<BookedEvent[]>([]);
+  const [bookedEvents, setBookedEvents] = useState<Event[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   useEffect(() => {
@@ -76,49 +65,10 @@ export default function BookedEventsPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {bookedEvents.map((event) => {
-              const isExpired = event.status === "expired";
-              return (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
-                >
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full sm:w-24 h-24 object-cover rounded-md"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {event.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {event.format === "On Demand"
-                        ? "On Demand"
-                        : event.startDate
-                          ? safeFormatDate(event.startDate, "MMM d, yyyy")
-                          : ""}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${isExpired ? "bg-gray-100 text-gray-600" : "bg-green-100 text-green-800"}`}
-                    >
-                      {isExpired ? "Expired" : "Active"}
-                    </span>
-                    <a
-                      href={event.bookingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors whitespace-nowrap"
-                    >
-                      {event.format === "On Demand" ? "Watch Now" : "Book Now"}
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bookedEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
           </div>
         )}
       </div>
