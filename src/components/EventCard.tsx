@@ -66,6 +66,11 @@ const EventCard = ({ event }: EventCardProps) => {
               On Demand
             </span>
           )}
+          {event.status === "expired" && (
+            <span className="px-3 py-1 text-xs font-semibold bg-gray-600 text-white rounded-full">
+              Expired
+            </span>
+          )}
         </div>
         {/* Favourite Heart - only for site users */}
         {isSiteUserAuthenticated && (
