@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Check, X, Clock, Plus, Star, List, Timer, MapPin, Loader2 } from "lucide-react";
+import {
+  Check,
+  X,
+  Clock,
+  Plus,
+  Star,
+  List,
+  Timer,
+  MapPin,
+  Loader2,
+} from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,17 +44,25 @@ const AdminDashboard = () => {
   const handleGeocodeBackfill = async () => {
     setIsGeocoding(true);
     try {
-      const res = await fetch("/api/admin/geocode-backfill", { method: "POST" });
+      const res = await fetch("/api/admin/geocode-backfill", {
+        method: "POST",
+      });
       const data = await res.json();
       if (data.success) {
         if (data.processed === 0) {
           toast.success("All approved events are already geocoded");
         } else if (data.failed > 0 && data.succeeded === 0) {
-          toast.error(`Failed to geocode ${data.failed} approved event(s) — invalid locations`);
+          toast.error(
+            `Failed to geocode ${data.failed} approved event(s) — invalid locations`,
+          );
         } else if (data.failed > 0) {
-          toast.success(`Geocoded ${data.succeeded} approved event(s), ${data.failed} failed (invalid locations)`);
+          toast.success(
+            `Geocoded ${data.succeeded} approved event(s), ${data.failed} failed (invalid locations)`,
+          );
         } else {
-          toast.success(`Geocoded ${data.succeeded} approved event(s) successfully`);
+          toast.success(
+            `Geocoded ${data.succeeded} approved event(s) successfully`,
+          );
         }
       } else {
         toast.error(data.message || "Geocoding failed");
@@ -209,28 +227,28 @@ const AdminDashboard = () => {
             </Button>
 
             <Dialog open={isAddingEvent} onOpenChange={setIsAddingEvent}>
-            <DialogTrigger asChild>
-              <Button size="lg">
-                <Plus className="h-5 w-5 mr-2" />
-                Create Event
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create Free Event Listing</DialogTitle>
-              </DialogHeader>
+              <DialogTrigger asChild>
+                <Button size="lg">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create Event
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create Free Event Listing</DialogTitle>
+                </DialogHeader>
 
-              <div className="mt-4">
-                <ListEventContent
-                  isAdminMode={true}
-                  onSuccess={() => {
-                    handleAddEvent();
-                  }}
-                  onCancel={() => setIsAddingEvent(false)}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
+                <div className="mt-4">
+                  <ListEventContent
+                    isAdminMode={true}
+                    onSuccess={() => {
+                      handleAddEvent();
+                    }}
+                    onCancel={() => setIsAddingEvent(false)}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -431,3 +449,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+//test
