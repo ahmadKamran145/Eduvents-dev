@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Promote your workshops, conferences, and seminars to teachers, school leaders, and support staff. Get your education event noticed quickly.",
   alternates: {
-    canonical: "/list-your-event",
+    canonical: "/list-event",
   },
 };
 

@@ -48,6 +48,7 @@ function getLocation(format: string, location: string, bookingUrl: string) {
     return [
       {
         "@type": "Place",
+        name: location,
         address: {
           "@type": "PostalAddress",
           streetAddress: location,
@@ -62,6 +63,7 @@ function getLocation(format: string, location: string, bookingUrl: string) {
   // In-Person
   return {
     "@type": "Place",
+    name: location,
     address: {
       "@type": "PostalAddress",
       streetAddress: location,
@@ -69,13 +71,23 @@ function getLocation(format: string, location: string, bookingUrl: string) {
   };
 }
 
-function getOffers(isFree: boolean, priceFrom?: number, priceTo?: number, price?: number) {
+function getOffers(
+  isFree: boolean,
+  bookingUrl: string,
+  submissionDate: string,
+  priceFrom?: number,
+  priceTo?: number,
+  price?: number,
+) {
+  const validFrom = submissionDate || new Date().toISOString().split("T")[0];
   if (isFree) {
     return {
       "@type": "Offer",
       price: "0",
       priceCurrency: "GBP",
       availability: "https://schema.org/InStock",
+      url: bookingUrl,
+      validFrom,
     };
   }
   const ticketPrice = priceFrom ?? price ?? priceTo ?? 0;
@@ -84,6 +96,8 @@ function getOffers(isFree: boolean, priceFrom?: number, priceTo?: number, price?
     price: String(ticketPrice),
     priceCurrency: "GBP",
     availability: "https://schema.org/InStock",
+    url: bookingUrl,
+    validFrom,
   };
 }
 
@@ -130,12 +144,19 @@ export default async function EventLayout({ children, params }: LayoutProps) {
       eventAttendanceMode: getAttendanceMode(eventData.format),
       location: getLocation(eventData.format, eventData.location, eventData.bookingUrl),
       image: eventData.image,
-      organizer: {
+      performer: {
         "@type": "Organization",
         name: eventData.organiser,
       },
+      organizer: {
+        "@type": "Organization",
+        name: eventData.organiser,
+        url: eventData.bookingUrl || `${baseUrl}/event/${eventData.slug}`,
+      },
       offers: getOffers(
         eventData.isFree,
+        eventData.bookingUrl || `${baseUrl}/event/${eventData.slug}`,
+        eventData.submissionDate,
         eventData.priceFrom,
         eventData.priceTo,
         eventData.price,
