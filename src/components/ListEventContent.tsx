@@ -78,7 +78,8 @@ const ListEventContent = ({
   }, [isOrganiserAuthenticated, organiser, isAdminMode]);
 
   const isOnDemand = formData.format === "On Demand";
-  const isOrganiserPrefilled = !isAdminMode && isOrganiserAuthenticated && !!organiser;
+  const isOrganiserPrefilled =
+    !isAdminMode && isOrganiserAuthenticated && !!organiser;
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -168,7 +169,10 @@ const ListEventContent = ({
         if (formData.priceFrom.trim() === "") {
           newErrors.priceFrom = "Required";
         }
-        if (formData.priceTo.trim() !== "" && parseFloat(formData.priceTo) <= 0) {
+        if (
+          formData.priceTo.trim() !== "" &&
+          parseFloat(formData.priceTo) <= 0
+        ) {
           newErrors.priceTo = "Price To must be greater than 0";
         } else if (
           formData.priceFrom.trim() !== "" &&
@@ -600,8 +604,12 @@ const ListEventContent = ({
                     isFree: "free",
                     priceFrom: "",
                     priceTo: "",
-                    organiserName: isOrganiserPrefilled && organiser ? organiser.organisationName : "",
-                    organiserEmail: isOrganiserPrefilled && organiser ? organiser.email : "",
+                    organiserName:
+                      isOrganiserPrefilled && organiser
+                        ? organiser.organisationName
+                        : "",
+                    organiserEmail:
+                      isOrganiserPrefilled && organiser ? organiser.email : "",
                     bookingUrl: "",
                   });
                   setImagePreview(null);
@@ -915,7 +923,9 @@ const ListEventContent = ({
                         min="1"
                         step="1"
                         value={formData.priceTo}
-                        onChange={(e) => handleChange("priceTo", e.target.value)}
+                        onChange={(e) =>
+                          handleChange("priceTo", e.target.value)
+                        }
                         placeholder="150"
                         className={`pl-7 ${errors.priceTo ? "border-destructive" : ""}`}
                       />
@@ -1015,13 +1025,15 @@ const ListEventContent = ({
               </Button>
             </div>
           ) : (
-            <label className="cursor-pointer">
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-2">
+            <label className="cursor-pointer flex flex-col items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <Upload className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-sm font-medium text-foreground mb-1">
                 Drag and drop your image here, or click to browse
               </p>
-              <p className="text-sm text-muted-foreground">
-                Upload any image (JPG or PNG)
+              <p className="text-xs text-muted-foreground">
+                JPG or PNG - approx 1200(w) x 600(h) - 16:9 ratio
               </p>
               <input
                 type="file"
