@@ -45,6 +45,11 @@ export function middleware(request: NextRequest) {
     const siteUserToken = request.cookies.get("siteuser_token")?.value;
     const organiserToken = request.cookies.get("organiser_token")?.value;
 
+    // Organiser logged in → allow access
+    if (organiserToken) {
+      return NextResponse.next();
+    }
+
     // Site user logged in → redirect to organiser prompt
     if (siteUserToken) {
       const promptUrl = new URL("/site-user/organiser-prompt", request.url);
@@ -52,10 +57,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Not logged in at all → redirect to register page
-    if (!organiserToken) {
-      const registerUrl = new URL("/organiser/register", request.url);
-      return NextResponse.redirect(registerUrl);
-    }
+    const registerUrl = new URL("/organiser/register", request.url);
+    return NextResponse.redirect(registerUrl);
   }
 
   return NextResponse.next();
