@@ -88,6 +88,14 @@ export async function getAdminFromCookie(): Promise<{ email: string } | null> {
 export async function setOrganiserCookie(organiserId: string, email: string) {
   const token = signToken({ id: organiserId, email, role: "organiser" });
   const cookieStore = await cookies();
+  // Clear admin cookie for mutual exclusion
+  cookieStore.set(ADMIN_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   // Clear site user cookie for mutual exclusion
   cookieStore.set(SITEUSER_COOKIE, "", {
     httpOnly: true,
@@ -141,6 +149,14 @@ export async function getOrganiserFromCookie(): Promise<
 export async function setSiteUserCookie(siteUserId: string, email: string) {
   const token = signToken({ id: siteUserId, email, role: "siteuser" });
   const cookieStore = await cookies();
+  // Clear admin cookie for mutual exclusion
+  cookieStore.set(ADMIN_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   // Clear organiser cookie for mutual exclusion
   cookieStore.set(ORGANISER_COOKIE, "", {
     httpOnly: true,

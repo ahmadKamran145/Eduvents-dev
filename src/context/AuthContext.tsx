@@ -175,7 +175,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const adminLogout = () => {
+  const adminLogout = async () => {
+    try {
+      await fetch("/api/auth/admin/logout", { method: "POST" });
+    } catch {}
     localStorage.removeItem("isAdminAuthenticated");
     setIsAdminAuthenticated(false);
     router.push("/");
@@ -199,11 +202,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (data.role === "admin") {
           localStorage.setItem("isAdminAuthenticated", "true");
           setIsAdminAuthenticated(true);
+          setOrganiser(null);
+          setSiteUser(null);
+          setSiteUserFavourites([]);
         } else if (data.role === "organiser") {
+          localStorage.removeItem("isAdminAuthenticated");
+          setIsAdminAuthenticated(false);
           setOrganiser(data.user);
           setSiteUser(null);
           setSiteUserFavourites([]);
         } else if (data.role === "siteuser") {
+          localStorage.removeItem("isAdminAuthenticated");
+          setIsAdminAuthenticated(false);
           setSiteUser(data.user);
           setOrganiser(null);
           // Load favourites
