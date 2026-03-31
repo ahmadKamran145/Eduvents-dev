@@ -26,7 +26,7 @@ function ResetPasswordForm() {
           Invalid reset link. Please request a new password reset.
         </p>
         <Link
-          href="/organiser/forgot-password"
+          href="/forgot-password"
           className="text-primary hover:underline font-medium"
         >
           Request New Reset Link
@@ -64,7 +64,7 @@ function ResetPasswordForm() {
       const data = await response.json();
       if (data.success) {
         toast.success("Password reset successfully!");
-        router.push("/organiser/login");
+        router.push("/login");
       } else {
         if (data.errors) {
           setErrors(data.errors);
@@ -170,7 +170,7 @@ function ResetPasswordForm() {
 
       <div className="text-center">
         <Link
-          href="/organiser/login"
+          href="/login"
           className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary transition-colors"
         >
           <svg

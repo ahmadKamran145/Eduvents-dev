@@ -12,6 +12,7 @@ import {
   sendStatusUpdateEmail,
 } from "@/lib/email";
 import { geocodeAddress } from "@/lib/geocode";
+import { getAdminFromCookie } from "@/lib/auth";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -49,7 +50,9 @@ export async function POST(req: NextRequest) {
     const priceTo = formData.get("priceTo")
       ? parseFloat(formData.get("priceTo") as string)
       : undefined;
-    const isAdmin = formData.get("isAdmin") === "true";
+    const isAdminRequest = formData.get("isAdmin") === "true";
+    const adminUser = await getAdminFromCookie();
+    const isAdmin = isAdminRequest && !!adminUser;
     const organiserId = formData.get("organiserId") as string | null;
     const file = formData.get("image") as File;
 

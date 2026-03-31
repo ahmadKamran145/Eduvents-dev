@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
+import { getAdminFromCookie } from '@/lib/auth';
 
 export async function GET() {
     try {
+        const admin = await getAdminFromCookie();
+        if (!admin) {
+            return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
+        }
         await dbConnect();
         // Admin needs to see all events that are paid or created by admin
         // This filters out abandoned "unpaid" event submissions

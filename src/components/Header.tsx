@@ -85,16 +85,44 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Admin logged in */}
+            {/* Admin logged in - Account dropdown */}
             {isAdminAuthenticated &&
               !isOrganiserAuthenticated &&
               !isSiteUserAuthenticated && (
-                <button
-                  onClick={adminLogout}
-                  className="text-base font-medium text-red-500 hover:text-red-600 transition-colors font-league-gothic tracking-wide"
-                >
-                  Logout
-                </button>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
+                  >
+                    <User className="h-4 w-4" />
+                    Admin
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                      <Link
+                        href="/admin"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        Dashboard
+                      </Link>
+                      <div className="border-t border-gray-100 my-1"></div>
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          adminLogout();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
 
             {/* Organiser logged in - Account dropdown */}
@@ -252,15 +280,24 @@ const Header = () => {
               {isAdminAuthenticated &&
                 !isOrganiserAuthenticated &&
                 !isSiteUserAuthenticated && (
-                  <button
-                    onClick={() => {
-                      adminLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
-                  >
-                    Logout
-                  </button>
+                  <div className="border-t border-border pt-4 flex flex-col space-y-3">
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        adminLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 )}
 
               {/* Organiser - mobile */}

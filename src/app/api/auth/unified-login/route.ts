@@ -4,8 +4,10 @@ import Organiser from "@/models/Organiser";
 import SiteUser from "@/models/SiteUser";
 import {
   comparePassword,
+  setAdminCookie,
   setOrganiserCookie,
   setSiteUserCookie,
+  verifyAdminPassword,
 } from "@/lib/auth";
 
 export async function POST(request: Request) {
@@ -33,29 +35,19 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // 1. Check admin credentials
-    try {
-      const adminCredentialsJson = process.env.ADMIN_CREDENTIALS;
-      if (adminCredentialsJson) {
-        const adminCredentials: Array<{ email: string; password: string }> =
-          JSON.parse(adminCredentialsJson);
-        const matchingAdmin = adminCredentials.find(
-          (admin) =>
-            admin.email.toLowerCase() === normalizedEmail &&
-            admin.password === password,
-        );
-        if (matchingAdmin) {
-          return NextResponse.json({
-            success: true,
-            message: "Login successful.",
-            role: "admin",
-            user: { email: matchingAdmin.email, role: "admin" },
-          });
-        }
-      }
-    } catch {}
-
     await dbConnect();
+
+    // 1. Check admin credentials in DB
+    const admin = await verifyAdminPassword(normalizedEmail, password);
+    if (admin) {
+      await setAdminCookie(admin.email);
+      return NextResponse.json({
+        success: true,
+        message: "Login successful.",
+        role: "admin",
+        user: { email: admin.email, role: "admin" },
+      });
+    }
 
     // 2. Check Organiser collection
     const organiser = await Organiser.findOne({ email: normalizedEmail });

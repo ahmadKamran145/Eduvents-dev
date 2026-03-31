@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Event from "@/models/Event";
+import { getAdminFromCookie } from "@/lib/auth";
 
 export async function POST() {
   try {
+    const admin = await getAdminFromCookie();
+    if (!admin) {
+      return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
+    }
     await dbConnect();
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;

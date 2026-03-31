@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     siteUser.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
     await siteUser.save();
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(normalizedEmail)}&type=siteuser`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/site-user/reset-password?token=${resetToken}&email=${encodeURIComponent(normalizedEmail)}`;
 
     await sendPasswordResetEmail(siteUser.email, siteUser.name, resetUrl);
 

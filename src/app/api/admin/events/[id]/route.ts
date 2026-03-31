@@ -9,9 +9,20 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { sendStatusUpdateEmail } from '@/lib/email';
 import { geocodeAddress } from '@/lib/geocode';
+import { getAdminFromCookie } from '@/lib/auth';
+
+const authGuard = async () => {
+    const admin = await getAdminFromCookie();
+    if (!admin) {
+        return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
+    }
+    return null;
+};
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const denied = await authGuard();
+        if (denied) return denied;
         await dbConnect();
         const { id } = await params;
         const eventDoc = await Event.findById(id);
@@ -24,6 +35,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const denied = await authGuard();
+        if (denied) return denied;
         await dbConnect();
         const { id } = await params;
         const body = await req.json();
@@ -49,6 +62,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const denied = await authGuard();
+        if (denied) return denied;
         await dbConnect();
         const { id: eventId } = await params;
         const formData = await req.formData();
@@ -149,6 +164,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const denied = await authGuard();
+        if (denied) return denied;
         await dbConnect();
         const { id } = await params;
         const event = await Event.findByIdAndDelete(id);

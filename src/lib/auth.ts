@@ -3,10 +3,12 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import dbConnect from "./mongodb";
 import mongoose from "mongoose";
+import Admin, { IAdmin } from "@/models/Admin";
 import Organiser, { IOrganiser } from "@/models/Organiser";
 import SiteUser, { ISiteUser } from "@/models/SiteUser";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-change-me";
+const ADMIN_COOKIE = "admin_token";
 const ORGANISER_COOKIE = "organiser_token";
 const SITEUSER_COOKIE = "siteuser_token";
 const TOKEN_EXPIRY = "7d";
@@ -25,7 +27,7 @@ export async function comparePassword(
 interface TokenPayload {
   id: string;
   email: string;
-  role: "organiser" | "siteuser";
+  role: "admin" | "organiser" | "siteuser";
 }
 
 export function signToken(payload: TokenPayload): string {
@@ -35,6 +37,47 @@ export function signToken(payload: TokenPayload): string {
 export function verifyToken(token: string): TokenPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as TokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+// --- Admin Cookie ---
+
+export async function setAdminCookie(email: string) {
+  const token = signToken({ id: "admin", email, role: "admin" });
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60,
+  });
+  return token;
+}
+
+export async function clearAdminCookie() {
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
+export async function getAdminFromCookie(): Promise<{ email: string } | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(ADMIN_COOKIE)?.value;
+    if (!token) return null;
+
+    const payload = verifyToken(token);
+    if (!payload || payload.role !== "admin") return null;
+
+    return { email: payload.email };
   } catch {
     return null;
   }
@@ -148,24 +191,30 @@ export async function getSiteUserFromCookie(): Promise<
 
 // --- Shared Helpers ---
 
-export function getAdminEmails(): string[] {
-  try {
-    const adminCredentialsJson = process.env.ADMIN_CREDENTIALS;
-    if (!adminCredentialsJson) return [];
-    const adminCredentials: Array<{ email: string; password: string }> =
-      JSON.parse(adminCredentialsJson);
-    return adminCredentials.map((a) => a.email.toLowerCase());
-  } catch {
-    return [];
-  }
+export async function getAdminByEmail(
+  email: string,
+): Promise<(mongoose.Document & IAdmin) | null> {
+  await dbConnect();
+  return Admin.findOne({ email: email.trim().toLowerCase() });
+}
+
+export async function verifyAdminPassword(
+  email: string,
+  password: string,
+): Promise<(mongoose.Document & IAdmin) | null> {
+  const admin = await getAdminByEmail(email);
+  if (!admin) return null;
+  const match = await bcrypt.compare(password, admin.password);
+  return match ? admin : null;
 }
 
 export async function isEmailTaken(email: string): Promise<boolean> {
   const normalizedEmail = email.trim().toLowerCase();
   await dbConnect();
 
-  // Check admin credentials
-  if (getAdminEmails().includes(normalizedEmail)) return true;
+  // Check Admin collection
+  const existingAdmin = await Admin.findOne({ email: normalizedEmail });
+  if (existingAdmin) return true;
 
   // Check Organiser collection
   const existingOrganiser = await Organiser.findOne({
