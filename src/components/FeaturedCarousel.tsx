@@ -83,7 +83,7 @@ const FeaturedCarousel = ({ events }: FeaturedCarouselProps) => {
   }
 
   return (
-    <div className="relative group overflow-hidden rounded-xl">
+    <div className="relative group overflow-hidden rounded-xl outline-none" tabIndex={-1}>
       <div
         className={`flex ${isTransitioning ? 'transition-transform duration-700 ease-in-out' : ''}`}
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}

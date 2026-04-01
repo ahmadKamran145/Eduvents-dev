@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function decodeBase64Url(str: string): string {
+  // JWT uses base64url: replace - with +, _ with /, and add padding
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = base64.length % 4;
+  if (pad === 2) base64 += "==";
+  else if (pad === 3) base64 += "=";
+  return atob(base64);
+}
+
 function getAuthRole(request: NextRequest): string | null {
   const token = request.cookies.get("auth_token")?.value;
   if (!token) return null;
 
   try {
-    // Decode JWT payload without verification (middleware can't use jsonwebtoken)
-    const payloadBase64 = token.split(".")[1];
-    if (!payloadBase64) return null;
-    const payload = JSON.parse(atob(payloadBase64));
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(decodeBase64Url(parts[1]));
     return payload.role || null;
   } catch {
     return null;
