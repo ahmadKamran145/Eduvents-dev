@@ -378,13 +378,15 @@ const EventDetail = () => {
                 {event.title}
               </h1>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={handleFavouriteClick}
-                  className={`p-2 rounded-full border transition-colors ${isFavourited ? "border-red-200 bg-red-50" : "border-gray-200 hover:bg-gray-50"}`}
-                  aria-label={isFavourited ? "Remove from favourites" : "Add to favourites"}
-                >
-                  <Heart className={`h-5 w-5 ${isFavourited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
-                </button>
+                {isSiteUserAuthenticated && (
+                  <button
+                    onClick={handleFavouriteClick}
+                    className={`p-2 rounded-full border transition-colors ${isFavourited ? "border-red-200 bg-red-50" : "border-gray-200 hover:bg-gray-50"}`}
+                    aria-label={isFavourited ? "Remove from favourites" : "Add to favourites"}
+                  >
+                    <Heart className={`h-5 w-5 ${isFavourited ? "text-red-500 fill-red-500" : "text-gray-400"}`} />
+                  </button>
+                )}
               {isAuthenticated && (
                 <Button
                   onClick={() => setIsEditing(true)}

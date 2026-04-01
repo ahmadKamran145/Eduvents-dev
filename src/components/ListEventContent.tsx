@@ -77,6 +77,11 @@ const ListEventContent = ({
     }
   }, [isOrganiserAuthenticated, organiser, isAdminMode]);
 
+  // Reset success state when organiser changes (prevents stale success page for different organiser)
+  useEffect(() => {
+    setShowSuccess(false);
+  }, [organiser?.id]);
+
   const isOnDemand = formData.format === "On Demand";
   const isOrganiserPrefilled =
     !isAdminMode && isOrganiserAuthenticated && !!organiser;
