@@ -61,11 +61,11 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container-tight">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center h-16 overflow-hidden">
             <img
               src="/logo.png"
               alt="EDUVENTS"
-              className="h-41 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
           </Link>
 
