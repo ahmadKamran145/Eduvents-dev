@@ -8,10 +8,11 @@ import Organiser, { IOrganiser } from "@/models/Organiser";
 import SiteUser, { ISiteUser } from "@/models/SiteUser";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-change-me";
-const ADMIN_COOKIE = "admin_token";
-const ORGANISER_COOKIE = "organiser_token";
-const SITEUSER_COOKIE = "siteuser_token";
+const AUTH_COOKIE = "auth_token";
 const TOKEN_EXPIRY = "7d";
+
+// Legacy cookie names — cleared on login to prevent stale conflicts
+const LEGACY_COOKIES = ["admin_token", "organiser_token", "siteuser_token"];
 
 export async function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, 12);
@@ -42,167 +43,104 @@ export function verifyToken(token: string): TokenPayload | null {
   }
 }
 
-// --- Admin Cookie ---
+// --- Single Auth Cookie ---
 
-export async function setAdminCookie(email: string) {
-  const token = signToken({ id: "admin", email, role: "admin" });
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
+async function clearLegacyCookies() {
   const cookieStore = await cookies();
-  cookieStore.set(ADMIN_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
+  for (const name of LEGACY_COOKIES) {
+    cookieStore.set(name, "", { ...COOKIE_OPTIONS, maxAge: 0 });
+  }
+}
+
+async function setAuthCookie(payload: TokenPayload) {
+  const token = signToken(payload);
+  const cookieStore = await cookies();
+  await clearLegacyCookies();
+  cookieStore.set(AUTH_COOKIE, token, {
+    ...COOKIE_OPTIONS,
     maxAge: 7 * 24 * 60 * 60,
   });
   return token;
 }
 
-export async function clearAdminCookie() {
+async function clearAuthCookie() {
   const cookieStore = await cookies();
-  cookieStore.set(ADMIN_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  cookieStore.set(AUTH_COOKIE, "", { ...COOKIE_OPTIONS, maxAge: 0 });
+  await clearLegacyCookies();
 }
 
-export async function getAdminFromCookie(): Promise<{ email: string } | null> {
+async function getAuthPayload(): Promise<TokenPayload | null> {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get(ADMIN_COOKIE)?.value;
+    const token = cookieStore.get(AUTH_COOKIE)?.value;
     if (!token) return null;
-
-    const payload = verifyToken(token);
-    if (!payload || payload.role !== "admin") return null;
-
-    return { email: payload.email };
+    return verifyToken(token);
   } catch {
     return null;
   }
 }
 
-// --- Organiser Cookie ---
+// --- Admin ---
+
+export async function setAdminCookie(email: string) {
+  return setAuthCookie({ id: "admin", email, role: "admin" });
+}
+
+export async function clearAdminCookie() {
+  return clearAuthCookie();
+}
+
+export async function getAdminFromCookie(): Promise<{ email: string } | null> {
+  const payload = await getAuthPayload();
+  if (!payload || payload.role !== "admin") return null;
+  return { email: payload.email };
+}
+
+// --- Organiser ---
 
 export async function setOrganiserCookie(organiserId: string, email: string) {
-  const token = signToken({ id: organiserId, email, role: "organiser" });
-  const cookieStore = await cookies();
-  // Clear admin cookie for mutual exclusion
-  cookieStore.set(ADMIN_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-  // Clear site user cookie for mutual exclusion
-  cookieStore.set(SITEUSER_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-  cookieStore.set(ORGANISER_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60,
-  });
-  return token;
+  return setAuthCookie({ id: organiserId, email, role: "organiser" });
 }
 
 export async function clearOrganiserCookie() {
-  const cookieStore = await cookies();
-  cookieStore.set(ORGANISER_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  return clearAuthCookie();
 }
 
 export async function getOrganiserFromCookie(): Promise<
   (mongoose.Document & IOrganiser) | null
 > {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(ORGANISER_COOKIE)?.value;
-    if (!token) return null;
+  const payload = await getAuthPayload();
+  if (!payload || payload.role !== "organiser") return null;
 
-    const payload = verifyToken(token);
-    if (!payload || payload.role !== "organiser") return null;
-
-    await dbConnect();
-    const organiser = await Organiser.findById(payload.id);
-    return organiser;
-  } catch {
-    return null;
-  }
+  await dbConnect();
+  return Organiser.findById(payload.id);
 }
 
-// --- Site User Cookie ---
+// --- Site User ---
 
 export async function setSiteUserCookie(siteUserId: string, email: string) {
-  const token = signToken({ id: siteUserId, email, role: "siteuser" });
-  const cookieStore = await cookies();
-  // Clear admin cookie for mutual exclusion
-  cookieStore.set(ADMIN_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-  // Clear organiser cookie for mutual exclusion
-  cookieStore.set(ORGANISER_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-  cookieStore.set(SITEUSER_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60,
-  });
-  return token;
+  return setAuthCookie({ id: siteUserId, email, role: "siteuser" });
 }
 
 export async function clearSiteUserCookie() {
-  const cookieStore = await cookies();
-  cookieStore.set(SITEUSER_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  return clearAuthCookie();
 }
 
 export async function getSiteUserFromCookie(): Promise<
   (mongoose.Document & ISiteUser) | null
 > {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(SITEUSER_COOKIE)?.value;
-    if (!token) return null;
+  const payload = await getAuthPayload();
+  if (!payload || payload.role !== "siteuser") return null;
 
-    const payload = verifyToken(token);
-    if (!payload || payload.role !== "siteuser") return null;
-
-    await dbConnect();
-    const siteUser = await SiteUser.findById(payload.id);
-    return siteUser;
-  } catch {
-    return null;
-  }
+  await dbConnect();
+  return SiteUser.findById(payload.id);
 }
 
 // --- Shared Helpers ---

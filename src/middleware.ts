@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function getAuthRole(request: NextRequest): string | null {
+  const token = request.cookies.get("auth_token")?.value;
+  if (!token) return null;
+
+  try {
+    // Decode JWT payload without verification (middleware can't use jsonwebtoken)
+    const payloadBase64 = token.split(".")[1];
+    if (!payloadBase64) return null;
+    const payload = JSON.parse(atob(payloadBase64));
+    return payload.role || null;
+  } catch {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
 
@@ -14,14 +29,14 @@ export function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  const role = getAuthRole(request);
 
   // Protect organiser routes
   if (
     pathname.startsWith("/organiser/dashboard") ||
     pathname.startsWith("/organiser/account")
   ) {
-    const token = request.cookies.get("organiser_token")?.value;
-    if (!token) {
+    if (role !== "organiser") {
       const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -33,8 +48,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/site-user/booked-events") ||
     pathname.startsWith("/site-user/account")
   ) {
-    const token = request.cookies.get("siteuser_token")?.value;
-    if (!token) {
+    if (role !== "siteuser") {
       const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -42,21 +56,18 @@ export function middleware(request: NextRequest) {
 
   // Guard /list-event
   if (pathname.startsWith("/list-event")) {
-    const siteUserToken = request.cookies.get("siteuser_token")?.value;
-    const organiserToken = request.cookies.get("organiser_token")?.value;
-
     // Organiser logged in → allow access
-    if (organiserToken) {
+    if (role === "organiser") {
       return NextResponse.next();
     }
 
     // Site user logged in → redirect to organiser prompt
-    if (siteUserToken) {
+    if (role === "siteuser") {
       const promptUrl = new URL("/site-user/organiser-prompt", request.url);
       return NextResponse.redirect(promptUrl);
     }
 
-    // Not logged in at all → redirect to register page
+    // Not logged in or admin → redirect to register page
     const registerUrl = new URL("/organiser/register", request.url);
     return NextResponse.redirect(registerUrl);
   }
@@ -67,4 +78,3 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: "/((?!_next/static|_next/image|favicon.png|icon.png).*)",
 };
-//test
