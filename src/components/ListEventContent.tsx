@@ -494,13 +494,9 @@ const ListEventContent = ({
 
     if (success === "true" && sessionId && eventId) {
       paymentProcessed.current = true;
-      window.history.replaceState({}, "", "/list-event"); // immediate sync URL cleanup
-      router.replace("/list-event"); // update Next.js router cache
       verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
       paymentProcessed.current = true;
-      window.history.replaceState({}, "", "/list-event");
-      router.replace("/list-event");
       handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
@@ -515,6 +511,8 @@ const ListEventContent = ({
       toast.error("Payment canceled. Your event was not listed.");
     } catch (error) {
       console.error("Error cleaning up canceled event:", error);
+    } finally {
+      window.history.replaceState({}, "", "/list-event");
     }
   };
 
@@ -538,6 +536,7 @@ const ListEventContent = ({
       toast.error("Error verifying payment");
     } finally {
       setVerifyingPayment(false);
+      window.history.replaceState({}, "", "/list-event");
     }
   };
 
