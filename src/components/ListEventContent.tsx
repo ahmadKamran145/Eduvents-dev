@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Upload, CreditCard, Check, Info, ArrowRight } from "lucide-react";
@@ -43,6 +43,7 @@ const ListEventContent = ({
   const [verifyingPayment, setVerifyingPayment] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [redirectingToRegister, setRedirectingToRegister] = useState(false);
+  const paymentProcessed = useRef(false);
 
   // Auth guard — redirect non-organisers to register
   useEffect(() => {
@@ -468,6 +469,9 @@ const ListEventContent = ({
     // Wait for auth to finish loading before processing payment callbacks
     if (isLoading) return;
 
+    // Prevent re-processing on tab switch or auth re-validation
+    if (paymentProcessed.current) return;
+
     const query = new URLSearchParams(window.location.search);
     const success = query.get("success");
     const canceled = query.get("canceled");
@@ -479,10 +483,12 @@ const ListEventContent = ({
     if (!isOrganiserAuthenticated) return;
 
     if (success === "true" && sessionId && eventId) {
-      router.replace("/list-event"); // strip params immediately before async work
+      paymentProcessed.current = true;
+      window.history.replaceState({}, "", "/list-event"); // strip params synchronously
       verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
-      router.replace("/list-event"); // strip params immediately before async work
+      paymentProcessed.current = true;
+      window.history.replaceState({}, "", "/list-event"); // strip params synchronously
       handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
