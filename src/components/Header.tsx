@@ -65,7 +65,7 @@ const Header = () => {
             <img
               src="/logo.png"
               alt="EDUVENTS"
-              className="h-12 w-auto object-contain"
+              className="h-41 w-auto object-contain"
             />
           </Link>
 
@@ -76,9 +76,7 @@ const Header = () => {
                 key={link.path}
                 href={link.path}
                 className={`text-base font-medium transition-colors hover:text-primary font-league-gothic tracking-wide ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  isActive(link.path) ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 {link.label}
@@ -133,7 +131,9 @@ const Header = () => {
                   className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
                 >
                   <User className="h-4 w-4" />
-                  {organiser.name.length > 20 ? organiser.name.slice(0, 20) + "..." : organiser.name}
+                  {organiser.name.length > 20
+                    ? organiser.name.slice(0, 20) + "..."
+                    : organiser.name}
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
@@ -171,56 +171,60 @@ const Header = () => {
             )}
 
             {/* Site User logged in - Account dropdown */}
-            {isSiteUserAuthenticated && siteUser && !isOrganiserAuthenticated && (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
-                >
-                  <User className="h-4 w-4" />
-                  {siteUser.name.length > 20 ? siteUser.name.slice(0, 20) + "..." : siteUser.name}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
+            {isSiteUserAuthenticated &&
+              siteUser &&
+              !isOrganiserAuthenticated && (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-1.5 text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic tracking-wide"
+                  >
+                    <User className="h-4 w-4" />
+                    {siteUser.name.length > 20
+                      ? siteUser.name.slice(0, 20) + "..."
+                      : siteUser.name}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
 
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                    <Link
-                      href="/site-user/favourites"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      My Favourites
-                    </Link>
-                    <Link
-                      href="/site-user/booked-events"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      My Booked Events
-                    </Link>
-                    <Link
-                      href="/site-user/account"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      Account Settings
-                    </Link>
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        siteUserLogout();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                      <Link
+                        href="/site-user/favourites"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        My Favourites
+                      </Link>
+                      <Link
+                        href="/site-user/booked-events"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        My Booked Events
+                      </Link>
+                      <Link
+                        href="/site-user/account"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        Account Settings
+                      </Link>
+                      <div className="border-t border-gray-100 my-1"></div>
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          siteUserLogout();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
             {/* Not logged in - Show Register & Login */}
             {!isOrganiserAuthenticated &&
@@ -306,65 +310,100 @@ const Header = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Signed in as{" "}
                     <span className="font-medium text-foreground">
-                      {organiser.name.length > 20 ? organiser.name.slice(0, 20) + "..." : organiser.name}
+                      {organiser.name.length > 20
+                        ? organiser.name.slice(0, 20) + "..."
+                        : organiser.name}
                     </span>
                   </p>
-                  <Link href="/organiser/dashboard" onClick={() => setIsMenuOpen(false)}
-                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                  <Link
+                    href="/organiser/dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
+                  >
                     My Dashboard
                   </Link>
-                  <Link href="/organiser/account" onClick={() => setIsMenuOpen(false)}
-                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
+                  <Link
+                    href="/organiser/account"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
+                  >
                     Account Settings
                   </Link>
                   <button
-                    onClick={() => { organiserLogout(); setIsMenuOpen(false); }}
-                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide">
+                    onClick={() => {
+                      organiserLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
+                  >
                     Logout
                   </button>
                 </div>
               )}
 
               {/* Site User - mobile */}
-              {isSiteUserAuthenticated && siteUser && !isOrganiserAuthenticated && (
-                <div className="border-t border-border pt-4">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Signed in as{" "}
-                    <span className="font-medium text-foreground">
-                      {siteUser.name.length > 20 ? siteUser.name.slice(0, 20) + "..." : siteUser.name}
-                    </span>
-                  </p>
-                  <Link href="/site-user/favourites" onClick={() => setIsMenuOpen(false)}
-                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
-                    My Favourites
-                  </Link>
-                  <Link href="/site-user/booked-events" onClick={() => setIsMenuOpen(false)}
-                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
-                    My Booked Events
-                  </Link>
-                  <Link href="/site-user/account" onClick={() => setIsMenuOpen(false)}
-                    className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3">
-                    Account Settings
-                  </Link>
-                  <button
-                    onClick={() => { siteUserLogout(); setIsMenuOpen(false); }}
-                    className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide">
-                    Logout
-                  </button>
-                </div>
-              )}
+              {isSiteUserAuthenticated &&
+                siteUser &&
+                !isOrganiserAuthenticated && (
+                  <div className="border-t border-border pt-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Signed in as{" "}
+                      <span className="font-medium text-foreground">
+                        {siteUser.name.length > 20
+                          ? siteUser.name.slice(0, 20) + "..."
+                          : siteUser.name}
+                      </span>
+                    </p>
+                    <Link
+                      href="/site-user/favourites"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
+                    >
+                      My Favourites
+                    </Link>
+                    <Link
+                      href="/site-user/booked-events"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
+                    >
+                      My Booked Events
+                    </Link>
+                    <Link
+                      href="/site-user/account"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide mb-3"
+                    >
+                      Account Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        siteUserLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-base font-medium text-red-500 hover:text-red-600 transition-colors text-left font-league-gothic uppercase tracking-wide"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
 
               {/* Not logged in - mobile */}
               {!isOrganiserAuthenticated &&
                 !isSiteUserAuthenticated &&
                 !isAdminAuthenticated && (
                   <div className="border-t border-border pt-4 flex flex-col space-y-3">
-                    <Link href="/register" onClick={() => setIsMenuOpen(false)}
-                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide">
+                    <Link
+                      href="/register"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors font-league-gothic uppercase tracking-wide"
+                    >
                       Register
                     </Link>
-                    <Link href="/login" onClick={() => setIsMenuOpen(false)}
-                      className="text-base font-medium text-primary hover:text-primary/80 transition-colors font-league-gothic uppercase tracking-wide">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-base font-medium text-primary hover:text-primary/80 transition-colors font-league-gothic uppercase tracking-wide"
+                    >
                       Login
                     </Link>
                   </div>
