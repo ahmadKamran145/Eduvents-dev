@@ -465,6 +465,20 @@ const ListEventContent = ({
     }
   };
 
+  // Reset payment-related state on fresh navigation (no payment callback params).
+  // This ensures navigating back to /list-event shows the form, not stale success/verifying screens.
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (!query.get("success") && !query.get("canceled")) {
+      setShowSuccess(false);
+      setVerifyingPayment(false);
+      paymentProcessed.current = false;
+    }
+    return () => {
+      paymentProcessed.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     // Wait for auth to finish loading before processing payment callbacks
     if (isLoading) return;
