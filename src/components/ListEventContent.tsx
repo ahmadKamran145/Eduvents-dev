@@ -77,9 +77,32 @@ const ListEventContent = ({
     }
   }, [isOrganiserAuthenticated, organiser, isAdminMode]);
 
-  // Reset success state when organiser changes (prevents stale success page for different organiser)
+  // Full state reset when organiser changes (prevents any stale data from previous organiser)
   useEffect(() => {
     setShowSuccess(false);
+    setImagePreview(null);
+    setSelectedFile(null);
+    setErrors({});
+    setVerifyingPayment(false);
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      format: "",
+      subjectAreas: [],
+      phases: [],
+      startDate: "",
+      endDate: "",
+      startTime: "",
+      endTime: "",
+      location: "",
+      isFree: "free",
+      priceFrom: "",
+      priceTo: "",
+      organiserName: organiser?.organisationName || "",
+      organiserEmail: organiser?.email || "",
+      bookingUrl: "",
+    });
   }, [organiser?.id]);
 
   const isOnDemand = formData.format === "On Demand";
