@@ -42,6 +42,15 @@ const ListEventContent = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [verifyingPayment, setVerifyingPayment] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [redirectingToRegister, setRedirectingToRegister] = useState(false);
+
+  // Auth guard — redirect non-organisers to register (but not during success/payment screens)
+  useEffect(() => {
+    if (!isAdminMode && !isLoading && !isOrganiserAuthenticated && !showSuccess && !verifyingPayment) {
+      setRedirectingToRegister(true);
+      router.replace("/organiser/register");
+    }
+  }, [isAdminMode, isLoading, isOrganiserAuthenticated, showSuccess, verifyingPayment, router]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -580,9 +589,8 @@ const ListEventContent = ({
     }
   };
 
-  // Client-side auth guard — redirect non-organisers to register
-  if (!isAdminMode && !isLoading && !isOrganiserAuthenticated) {
-    router.replace("/organiser/register");
+  // Show spinner while loading auth or redirecting to register
+  if (isLoading || redirectingToRegister) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>

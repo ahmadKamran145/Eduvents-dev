@@ -181,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     localStorage.removeItem("isAdminAuthenticated");
     setIsAdminAuthenticated(false);
-    router.push("/");
+    router.replace("/");
     toast.info("Logged out");
   };
 
@@ -302,7 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch("/api/auth/organiser/logout", { method: "POST" });
     } catch {}
     setOrganiser(null);
-    router.push("/");
+    router.replace("/");
     toast.info("Logged out");
   };
 
@@ -378,7 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     setSiteUser(null);
     setSiteUserFavourites([]);
-    router.push("/");
+    router.replace("/");
     toast.info("Logged out");
   };
 
