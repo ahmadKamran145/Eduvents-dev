@@ -181,8 +181,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     localStorage.removeItem("isAdminAuthenticated");
     setIsAdminAuthenticated(false);
-    router.replace("/");
     toast.info("Logged out");
+    window.location.href = "/";
   };
 
   // Unified login
@@ -302,8 +302,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch("/api/auth/organiser/logout", { method: "POST" });
     } catch {}
     setOrganiser(null);
-    router.replace("/");
     toast.info("Logged out");
+    window.location.href = "/";
   };
 
   // Site User login
@@ -378,8 +378,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     setSiteUser(null);
     setSiteUserFavourites([]);
-    router.replace("/");
     toast.info("Logged out");
+    window.location.href = "/";
   };
 
   // Favourites
