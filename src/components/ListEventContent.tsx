@@ -512,13 +512,14 @@ const ListEventContent = ({
       const result = await response.json();
       if (result.success) {
         setShowSuccess(true);
-        router.replace("/list-event");
       } else {
         toast.error(result.message || "Payment verification failed");
       }
+      router.replace("/list-event");
     } catch (error) {
       console.error("Error verifying payment:", error);
       toast.error("Error verifying payment");
+      router.replace("/list-event");
     } finally {
       setVerifyingPayment(false);
     }
