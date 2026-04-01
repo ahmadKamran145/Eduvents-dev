@@ -10,10 +10,7 @@ function decodeBase64Url(str: string): string {
   return atob(base64);
 }
 
-function getAuthRole(request: NextRequest): string | null {
-  const token = request.cookies.get("auth_token")?.value;
-  if (!token) return null;
-
+function getRoleFromToken(token: string): string | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -22,6 +19,23 @@ function getAuthRole(request: NextRequest): string | null {
   } catch {
     return null;
   }
+}
+
+function getAuthRole(request: NextRequest): string | null {
+  // Check new single cookie first, then fall back to legacy cookies
+  const authToken = request.cookies.get("auth_token")?.value;
+  if (authToken) return getRoleFromToken(authToken);
+
+  const organiserToken = request.cookies.get("organiser_token")?.value;
+  if (organiserToken) return getRoleFromToken(organiserToken);
+
+  const siteUserToken = request.cookies.get("siteuser_token")?.value;
+  if (siteUserToken) return getRoleFromToken(siteUserToken);
+
+  const adminToken = request.cookies.get("admin_token")?.value;
+  if (adminToken) return getRoleFromToken(adminToken);
+
+  return null;
 }
 
 export function middleware(request: NextRequest) {
@@ -62,22 +76,14 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Guard /list-event
+  // Guard /list-event — only block site users, allow organiser + fallback to client
   if (pathname.startsWith("/list-event")) {
-    // Organiser logged in → allow access
-    if (role === "organiser") {
-      return NextResponse.next();
-    }
-
-    // Site user logged in → redirect to organiser prompt
     if (role === "siteuser") {
       const promptUrl = new URL("/site-user/organiser-prompt", request.url);
       return NextResponse.redirect(promptUrl);
     }
-
-    // Not logged in or admin → redirect to register page
-    const registerUrl = new URL("/organiser/register", request.url);
-    return NextResponse.redirect(registerUrl);
+    // Let organiser, admin, and unknown (null) through —
+    // the page and client-side auth handle the rest
   }
 
   return NextResponse.next();

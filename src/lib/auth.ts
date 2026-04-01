@@ -52,17 +52,13 @@ const COOKIE_OPTIONS = {
   path: "/",
 };
 
-async function clearLegacyCookies() {
-  const cookieStore = await cookies();
-  for (const name of LEGACY_COOKIES) {
-    cookieStore.set(name, "", { ...COOKIE_OPTIONS, maxAge: 0 });
-  }
-}
-
 async function setAuthCookie(payload: TokenPayload) {
   const token = signToken(payload);
   const cookieStore = await cookies();
-  await clearLegacyCookies();
+  // Clear all legacy cookies and set new auth cookie in one go
+  for (const name of LEGACY_COOKIES) {
+    cookieStore.set(name, "", { ...COOKIE_OPTIONS, maxAge: 0 });
+  }
   cookieStore.set(AUTH_COOKIE, token, {
     ...COOKIE_OPTIONS,
     maxAge: 7 * 24 * 60 * 60,
@@ -73,13 +69,19 @@ async function setAuthCookie(payload: TokenPayload) {
 async function clearAuthCookie() {
   const cookieStore = await cookies();
   cookieStore.set(AUTH_COOKIE, "", { ...COOKIE_OPTIONS, maxAge: 0 });
-  await clearLegacyCookies();
+  for (const name of LEGACY_COOKIES) {
+    cookieStore.set(name, "", { ...COOKIE_OPTIONS, maxAge: 0 });
+  }
 }
 
 async function getAuthPayload(): Promise<TokenPayload | null> {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get(AUTH_COOKIE)?.value;
+    // Check new auth cookie first, fall back to legacy cookies
+    const token = cookieStore.get(AUTH_COOKIE)?.value
+      || cookieStore.get("organiser_token")?.value
+      || cookieStore.get("siteuser_token")?.value
+      || cookieStore.get("admin_token")?.value;
     if (!token) return null;
     return verifyToken(token);
   } catch {

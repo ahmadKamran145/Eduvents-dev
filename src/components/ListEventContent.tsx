@@ -36,7 +36,7 @@ const ListEventContent = ({
   onCancel,
 }: ListEventContentProps) => {
   const router = useRouter();
-  const { organiser, isOrganiserAuthenticated } = useAuth();
+  const { organiser, isOrganiserAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -551,6 +551,16 @@ const ListEventContent = ({
       setIsSubmitting(false);
     }
   };
+
+  // Client-side auth guard — redirect non-organisers to register
+  if (!isAdminMode && !isLoading && !isOrganiserAuthenticated) {
+    router.replace("/organiser/register");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (verifyingPayment) {
     return (
