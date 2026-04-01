@@ -41,7 +41,7 @@ import EventEditDialog from "@/components/admin/EventEditDialog";
 
 const EventDetail = () => {
   const params = useParams();
-  const { isAuthenticated, isOrganiserAuthenticated, isSiteUserAuthenticated, siteUserFavourites, toggleFavourite, addBookedEvent } = useAuth();
+  const { isAuthenticated, isOrganiserAuthenticated, isSiteUserAuthenticated, siteUserFavourites, toggleFavourite, addBookedEvent, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const slug = params?.slug as string;
 
@@ -82,23 +82,24 @@ const EventDetail = () => {
 
   // Track view when event loads (one view per session per event, logged-in users only)
   useEffect(() => {
-    if (eventId && isLoggedIn) {
-      const key = `viewed_${eventId}`;
-      if (!sessionStorage.getItem(key)) {
-        fetch(`/api/events/${eventId}/track`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "view" }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              sessionStorage.setItem(key, "1");
-            }
-          })
-          .catch(() => {});
-      }
-    }
-  }, [eventId, isLoggedIn]);
+    if (!eventId || isAuthLoading) return;
+    if (!isLoggedIn) return;
+
+    const key = `viewed_${eventId}`;
+    if (sessionStorage.getItem(key)) return;
+
+    fetch(`/api/events/${eventId}/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "view" }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          sessionStorage.setItem(key, "1");
+        }
+      })
+      .catch(() => {});
+  }, [eventId, isLoggedIn, isAuthLoading]);
 
   const isFavourited = eventId ? siteUserFavourites.includes(eventId) : false;
 
