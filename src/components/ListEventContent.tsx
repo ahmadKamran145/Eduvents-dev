@@ -475,19 +475,13 @@ const ListEventContent = ({
     const eventId = query.get("event_id");
 
     // Only verify payment if the current user is authenticated as an organiser
+    // If not authenticated, let the auth guard handle the redirect
+    if (!isOrganiserAuthenticated) return;
+
     if (success === "true" && sessionId && eventId) {
-      if (isOrganiserAuthenticated) {
-        verifyPayment(sessionId, eventId);
-      } else {
-        // Not the right user — clean URL and skip
-        router.replace("/list-event");
-      }
+      verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
-      if (isOrganiserAuthenticated) {
-        handleCancellation(eventId);
-      } else {
-        router.replace("/list-event");
-      }
+      handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
 
