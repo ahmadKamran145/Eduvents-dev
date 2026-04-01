@@ -488,6 +488,18 @@ const ListEventContent = ({
     const sessionId = query.get("session_id");
     const eventId = query.get("event_id");
 
+    // Already processed this payment in a previous mount (e.g. user navigated away and back).
+    // The Next.js router cache restores the original URL with params, so we detect it here
+    // via sessionStorage and just strip the URL without re-verifying.
+    if (
+      (sessionId && sessionStorage.getItem(`payment_done_${sessionId}`)) ||
+      (eventId && sessionStorage.getItem(`payment_canceled_${eventId}`))
+    ) {
+      window.history.replaceState({}, "", "/list-event");
+      paymentProcessed.current = true;
+      return;
+    }
+
     // Only verify payment if the current user is authenticated as an organiser
     // If not authenticated, let the auth guard handle the redirect
     if (!isOrganiserAuthenticated) return;
@@ -512,6 +524,7 @@ const ListEventContent = ({
     } catch (error) {
       console.error("Error cleaning up canceled event:", error);
     } finally {
+      sessionStorage.setItem(`payment_canceled_${eventId}`, "true");
       window.history.replaceState({}, "", "/list-event");
     }
   };
@@ -527,6 +540,7 @@ const ListEventContent = ({
 
       const result = await response.json();
       if (result.success) {
+        sessionStorage.setItem(`payment_done_${sessionId}`, "true");
         setShowSuccess(true);
       } else {
         toast.error(result.message || "Payment verification failed");
