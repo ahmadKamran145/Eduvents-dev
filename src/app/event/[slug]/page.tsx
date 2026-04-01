@@ -78,25 +78,32 @@ const EventDetail = () => {
     }
   };
 
-  // Track view when event loads (one view per session per event)
+  const isLoggedIn = isAuthenticated || isOrganiserAuthenticated || isSiteUserAuthenticated;
+
+  // Track view when event loads (one view per session per event, logged-in users only)
   useEffect(() => {
-    if (eventId) {
+    if (eventId && isLoggedIn) {
       const key = `viewed_${eventId}`;
       if (!sessionStorage.getItem(key)) {
         fetch(`/api/events/${eventId}/track`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "view" }),
-        }).catch(() => {});
-        sessionStorage.setItem(key, "1");
+        })
+          .then((res) => {
+            if (res.ok) {
+              sessionStorage.setItem(key, "1");
+            }
+          })
+          .catch(() => {});
       }
     }
-  }, [eventId]);
+  }, [eventId, isLoggedIn]);
 
   const isFavourited = eventId ? siteUserFavourites.includes(eventId) : false;
 
   const handleBookingClick = () => {
-    if (eventId) {
+    if (eventId && isLoggedIn) {
       fetch(`/api/events/${eventId}/track`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

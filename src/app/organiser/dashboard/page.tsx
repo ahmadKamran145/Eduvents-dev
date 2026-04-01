@@ -99,6 +99,15 @@ export default function OrganiserDashboard() {
     }
   }, [isOrganiserAuthenticated, isLoading, router, fetchDashboardData]);
 
+  // Refetch data when the page regains focus (e.g. returning from event detail)
+  useEffect(() => {
+    const onFocus = () => {
+      if (isOrganiserAuthenticated) fetchDashboardData();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [isOrganiserAuthenticated, fetchDashboardData]);
+
   if (isLoading || !isOrganiserAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
