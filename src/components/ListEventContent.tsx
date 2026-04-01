@@ -465,30 +465,26 @@ const ListEventContent = ({
     }
   };
 
-  // Reset payment-related state on fresh navigation (no payment callback params).
-  // This ensures navigating back to /list-event shows the form, not stale success/verifying screens.
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if (!query.get("success") && !query.get("canceled")) {
-      setShowSuccess(false);
-      setVerifyingPayment(false);
-      paymentProcessed.current = false;
-    }
-    return () => {
-      paymentProcessed.current = false;
-    };
-  }, []);
-
   useEffect(() => {
     // Wait for auth to finish loading before processing payment callbacks
     if (isLoading) return;
 
-    // Prevent re-processing on tab switch or auth re-validation
-    if (paymentProcessed.current) return;
-
     const query = new URLSearchParams(window.location.search);
     const success = query.get("success");
     const canceled = query.get("canceled");
+
+    // No payment params → reset any stale success/verifying state.
+    // Handles: navigate-back, page reload, direct visit to /list-event.
+    if (!success && !canceled) {
+      setShowSuccess(false);
+      setVerifyingPayment(false);
+      paymentProcessed.current = false;
+      return;
+    }
+
+    // Prevent re-processing on tab switch or auth re-validation
+    if (paymentProcessed.current) return;
+
     const sessionId = query.get("session_id");
     const eventId = query.get("event_id");
 
@@ -498,11 +494,13 @@ const ListEventContent = ({
 
     if (success === "true" && sessionId && eventId) {
       paymentProcessed.current = true;
-      router.replace("/list-event"); // strip params and update Next.js router cache
+      window.history.replaceState({}, "", "/list-event"); // immediate sync URL cleanup
+      router.replace("/list-event"); // update Next.js router cache
       verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
       paymentProcessed.current = true;
-      router.replace("/list-event"); // strip params and update Next.js router cache
+      window.history.replaceState({}, "", "/list-event");
+      router.replace("/list-event");
       handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
