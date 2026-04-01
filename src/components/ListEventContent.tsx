@@ -479,8 +479,10 @@ const ListEventContent = ({
     if (!isOrganiserAuthenticated) return;
 
     if (success === "true" && sessionId && eventId) {
+      router.replace("/list-event"); // strip params immediately before async work
       verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
+      router.replace("/list-event"); // strip params immediately before async work
       handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
@@ -493,8 +495,6 @@ const ListEventContent = ({
         body: JSON.stringify({ eventId }),
       });
       toast.error("Payment canceled. Your event was not listed.");
-      // Clean up URL
-      router.replace("/list-event");
     } catch (error) {
       console.error("Error cleaning up canceled event:", error);
     }
@@ -515,11 +515,9 @@ const ListEventContent = ({
       } else {
         toast.error(result.message || "Payment verification failed");
       }
-      router.replace("/list-event");
     } catch (error) {
       console.error("Error verifying payment:", error);
       toast.error("Error verifying payment");
-      router.replace("/list-event");
     } finally {
       setVerifyingPayment(false);
     }
