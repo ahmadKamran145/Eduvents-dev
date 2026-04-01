@@ -8,7 +8,7 @@ interface AccountTypePromptProps {
   onClose: () => void;
   redirectUrl?: string;
 }
-
+//ok
 const AccountTypePrompt = ({
   isOpen,
   onClose,
