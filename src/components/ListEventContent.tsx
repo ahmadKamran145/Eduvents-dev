@@ -484,11 +484,11 @@ const ListEventContent = ({
 
     if (success === "true" && sessionId && eventId) {
       paymentProcessed.current = true;
-      window.history.replaceState({}, "", "/list-event"); // strip params synchronously
+      router.replace("/list-event"); // strip params and update Next.js router cache
       verifyPayment(sessionId, eventId);
     } else if (canceled === "true" && eventId) {
       paymentProcessed.current = true;
-      window.history.replaceState({}, "", "/list-event"); // strip params synchronously
+      router.replace("/list-event"); // strip params and update Next.js router cache
       handleCancellation(eventId);
     }
   }, [isLoading, isOrganiserAuthenticated]);
