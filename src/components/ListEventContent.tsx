@@ -44,13 +44,13 @@ const ListEventContent = ({
   const [isDragging, setIsDragging] = useState(false);
   const [redirectingToRegister, setRedirectingToRegister] = useState(false);
 
-  // Auth guard — redirect non-organisers to register (but not during success/payment screens)
+  // Auth guard — redirect non-organisers to register
   useEffect(() => {
-    if (!isAdminMode && !isLoading && !isOrganiserAuthenticated && !showSuccess && !verifyingPayment) {
+    if (!isAdminMode && !isLoading && !isOrganiserAuthenticated) {
       setRedirectingToRegister(true);
       router.replace("/organiser/register");
     }
-  }, [isAdminMode, isLoading, isOrganiserAuthenticated, showSuccess, verifyingPayment, router]);
+  }, [isAdminMode, isLoading, isOrganiserAuthenticated, router]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -465,18 +465,31 @@ const ListEventContent = ({
   };
 
   useEffect(() => {
+    // Wait for auth to finish loading before processing payment callbacks
+    if (isLoading) return;
+
     const query = new URLSearchParams(window.location.search);
     const success = query.get("success");
     const canceled = query.get("canceled");
     const sessionId = query.get("session_id");
     const eventId = query.get("event_id");
 
+    // Only verify payment if the current user is authenticated as an organiser
     if (success === "true" && sessionId && eventId) {
-      verifyPayment(sessionId, eventId);
+      if (isOrganiserAuthenticated) {
+        verifyPayment(sessionId, eventId);
+      } else {
+        // Not the right user — clean URL and skip
+        router.replace("/list-event");
+      }
     } else if (canceled === "true" && eventId) {
-      handleCancellation(eventId);
+      if (isOrganiserAuthenticated) {
+        handleCancellation(eventId);
+      } else {
+        router.replace("/list-event");
+      }
     }
-  }, []);
+  }, [isLoading, isOrganiserAuthenticated]);
 
   const handleCancellation = async (eventId: string) => {
     try {
